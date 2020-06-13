@@ -1,0 +1,44 @@
+{
+  "name": "Led Tabela",
+  "description" : "Git Led Tabela",
+  "version": "2020.0.1",
+  "manifest_version": 2,
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Led Tabela",
+    "default_icon": "./led-tabela_16.png"
+  },
+  "icons": {
+    "16": "./led-tabela_16.png",
+    "32": "./led-tabela_32.png",
+    "64": "./led-tabela_64.png",
+    "128": "./led-tabela_128.png"
+  },
+  "background" : {
+    "scripts" : ["./hot-reload.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.github.com/*"
+      ],
+      "all_frames": false,
+      "js": [
+        "./led-tabela.js"
+      ],
+      "match_about_blank": true
+    }
+  ],
+  "permissions": [
+    "storage",
+    "downloads",
+    "activeTab",
+    "tabs"
+  ],
+  "web_accessible_resources": [
+    "./skeleton.js",
+    "./led-tabela.js"
+  ],
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.gstatic.com; object-src 'self';"
+}
