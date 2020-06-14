@@ -1,14 +1,5 @@
 let i=0;
 let defaultColors = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'];
-let alphabet = {
-    A:[[0,6],[0,5],[0,4],[0,3],[0,2],[1,1],[2,0],[3,1],[4,2],[4,3],[4,4],[4,5],[4,6],[3,3],[2,3],[1,3]],
-    B:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[1,6],[2,6],[3,5],[3,4],[2,3],[1,3],[3,2],[3,1],[2,0],[1,0]],
-    C:[[0,2],[0,3],[0,4],[1,1],[1,5],[2,0],[2,6],[3,0],[3,6],[4,0],[4,6]],
-    D:[[0,6],[0,5],[0,4],[0,3],[0,2],[0,1],[0,0],[1,0],[2,0],[3,1],[4,2],[4,3],[4,4],[3,5],[2,6],[1,6]],
-    E:[[0,6],[0,5],[0,4],[0,3],[0,2],[0,1],[0,0],[1,0],[2,0],[3,0],[1,6],[2,6],[3,6],[1,3],[2,3],[3,3]],
-    F:[[0,6],[0,5],[0,4],[0,3],[0,2],[0,1],[0,0],[1,0],[2,0],[3,0],[1,3],[2,3],[3,3]],
-    G:[[2,6],[3,6],[1,5],[0,4],[0,3],[0,2],[1,1],[2,0],[3,0],[4,1],[4,2],[4,5],[4,4],[3,4],[2,4]]
-};
 let xMax=0;
 let yMax=0;
 let interLetterSpace=1;
@@ -35,12 +26,8 @@ window.addEventListener('load',  ()=>{
         i++;
     });
 //--<
-    resetter();
-    writer("ABCDEFG",{switch:1});
-
 });
 //-------------------------------------------------------------------------------------------------------------------
-
 
 function resetter(){
     rectNodeList.forEach((rectNode)=>{
@@ -48,9 +35,9 @@ function resetter(){
     })
 }
 
-function setter(data, letterWidth){
+function setter(data, letterWidth, totalWordLength){
     data.forEach((datum)=>{
-        console.log(`Total length: ${datum[0]+leftPadding} xMax: ${xMax}`)
+        console.log(`Total length: ${datum[0]+leftPadding} xMax: ${xMax}`);
         if(datum[0]+leftPadding>=xMax) return;
         console.log(`leftPadding: ${leftPadding}`);
         document.querySelector(`#ID_${datum[0]+leftPadding}-${datum[1]}`).style.setProperty("fill",defaultColors[4], "important");
@@ -58,25 +45,33 @@ function setter(data, letterWidth){
     leftPadding+=letterWidth+interLetterSpace;
 }
 
-function writer(word,animate){
-    let letters = word.split('');
+function writer(payload){
+    let letters = payload.word.split('');
     let extra = 0;
+    resetter();
+    // calculate word total length with interletterspaces
+    let totalWordLength = letters.reduce((acc,cur)=>{
+        let orderedLetterData = alphabet[cur].sort();
+        let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
+        return acc+letterLength;
+    }) + ((letters.length-1)*interLetterSpace); // added spaces
+
     //- animated or not
-    if(animate.switch===1){
+    if(payload.animate.switch===1){
         let animationTimer = window.setInterval(()=>{
             resetter();
             letters.forEach((letter)=>{
                 let lData = alphabet[letter];
                 lData.sort();
                 let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
-                setter(lData,letterWidth);
+                setter(lData,letterWidth, totalWordLength);
                 console.log(`extra degeri: ${extra}`);
                 if(xMax===extra) clearInterval(animationTimer);
-                
+
             });
             animIterator++;
             leftPadding=animIterator;
-        },500)
+        },200)
     }else{
         letters.forEach((letter)=>{
             let lData = alphabet[letter];
@@ -87,3 +82,33 @@ function writer(word,animate){
     }
 }
 
+
+//Sending message to popup side
+function m2p(outgoingMessage){
+    chrome.runtime.sendMessage(outgoingMessage);
+}
+//AND Listener
+// expected full message structure is:
+// {value:'', action:'runRequest', payload:{}, callBack:null ,echo:true} // if echo is true so give the just ran functions name as callback
+//gelen
+//{value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:false}}
+chrome.runtime.onMessage.addListener(  (request)=>{
+    switch (request.action) {
+        case 'runRequest':
+            let results={};
+            if(typeof request.payload ==='object' && request.payload.constructor===Object && Object.keys(request.payload).length>0){
+                results = window[request.value](request.payload);
+            }else{
+                results = window[request.value]();
+            }
+            if(request.callBack && request.callBack.callBackName){
+                m2p({value:request.callBack.callBackName, action:'runRequest',payload: results,})
+            }
+
+            break;
+        default:
+            console.log(request.value);
+            break;
+    }
+    return true;
+});
