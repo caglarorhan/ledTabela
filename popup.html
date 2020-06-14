@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <title>Led Tabela</title>
 </head>
-<body>
+<body style="padding:0; margin: 0;">
+<div style="width: 100%; padding:3px; margin: 0; border-bottom: 2px solid grey; background-color: green; color: white; font-size: 14px; font-weight: bold; text-align: center">Led Tabela</div>
 <div class="container">
-    <div class="row">
-        <input type="text" id="words">
+    <div style="padding:5px";>
+        <input type="text" id="words" placeholder="Input some words">
     </div>
     <div class="row">
         <div class="">
+            <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?">
             <button class="button" id="sendWordsButton">RUN</button>
             <span style="width: 100px">.</span>
-            <button class="button" id="stopProcess">STOP</button>
+            <button class="button" id="toggleProcess">TOGGLE</button>
         </div>
     </div>
 </div>
-<span>Icons from Freepik</span>
+<div style="width:100%; padding:3px; margin:0; background-color: green; color:white ">Icons from Freepik</div>
 <script src="./popup.js"></script>
 </body>
 </html>

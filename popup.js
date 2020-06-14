@@ -1,11 +1,20 @@
 window.addEventListener('load',()=>{
 
-    document.querySelector('#sendWordsButton').addEventListener('click',()=>{
+    // run process
+    document.querySelector('#sendWordsButton').addEventListener('click',(e)=>{
         let words = document.querySelector('#words').value;
+
+        //alert(words);
+        let animationSwitch = document.querySelector('#animationSwitch').checked;
         //m2c({value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:true},});
-        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:1}}, callBack:{callBackName:null, echo:false}});
+        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch}}, callBack:{callBackName:null, echo:false}});
 
     });
+
+    // stop process
+    document.querySelector('#toggleProcess').addEventListener('click',()=>{
+        m2c({value:'toggleAnimation', action:'runRequest'})
+    })
 
 });
 

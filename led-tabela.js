@@ -7,12 +7,25 @@ let newLetterRecord = [];
 let leftPadding = 0;
 let animIterator=0;
 let rectNodeList=null;
+let animationStatus=true;
 //-----------------------------------------------------------------------------
 window.addEventListener('load',  ()=>{
     console.log('test yuklendik...');
     document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="letterRecordDataButton">Show Data</button>';
+    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="clearTheDataButton">Clear Data</button>';
+    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="clearTheTableButton">Clear The Table</button>';
+    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="writeData2TableButton">Write Data2Table</button>';
     document.querySelector('#letterRecordDataButton').addEventListener('click',()=>{
         document.querySelector('div.js-yearly-contributions h2.f4').textContent= `DATA: ${JSON.stringify(newLetterRecord)}`;
+    });
+    document.querySelector('#clearTheTableButton').addEventListener('click', ()=>{
+       resetter();
+    });
+    document.querySelector('#clearTheDataButton').addEventListener('click',()=>{
+        newLetterRecord=[];
+    });
+    document.querySelector('#writeData2TableButton').addEventListener('click',()=>{
+       setter(newLetterRecord,0,0);
     });
 
     rectNodeList = document.querySelectorAll('svg.js-calendar-graph-svg g > g > rect');
@@ -28,6 +41,13 @@ window.addEventListener('load',  ()=>{
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
+
+
+function toggleAnimation(){
+    console.log(`animasyon durumu: ${animationStatus} idi`);
+    animationStatus=!animationStatus;
+    console.log(`Simdi: ${animationStatus} oldu`)
+}
 
 function resetter(){
     rectNodeList.forEach((rectNode)=>{
@@ -47,6 +67,7 @@ function setter(data, letterWidth, totalWordLength){
 
 function writer(payload){
     let letters = payload.word.split('');
+    console.log(payload.word)
     let extra = 0;
     resetter();
     // calculate word total length with interletterspaces
@@ -57,7 +78,10 @@ function writer(payload){
     }) + ((letters.length-1)*interLetterSpace); // added spaces
 
     //- animated or not
-    if(payload.animate.switch===1){
+    console.log(payload.animate.switch);
+    console.log(animationStatus);
+    if(payload.animate.switch===true && animationStatus){
+        console.log(`Animasyon tarafi ok`);
         let animationTimer = window.setInterval(()=>{
             resetter();
             letters.forEach((letter)=>{
@@ -66,7 +90,7 @@ function writer(payload){
                 let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
                 setter(lData,letterWidth, totalWordLength);
                 console.log(`extra degeri: ${extra}`);
-                if(xMax===extra) clearInterval(animationTimer);
+                if(xMax===extra || !animationStatus) clearInterval(animationTimer);
 
             });
             animIterator++;
