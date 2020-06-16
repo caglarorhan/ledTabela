@@ -80,8 +80,7 @@ function resetter(){
 function setter(data){
     let letterWidth = data[data.length-1][0]-data[0][0]+1;
     data.forEach((datum)=>{
-        if(datum[0]+leftPadding>=xMax) return;
-        document.querySelector(`#ID_${datum[0]+leftPadding}-${datum[1]}`).style.setProperty("fill",colorSelection('randomFancy'), "important");
+        document.querySelector(`#ID_${(datum[0]+leftPadding)%xMax}-${datum[1]}`).style.setProperty("fill",colorSelection('randomFancy'), "important");
     });
     leftPadding+=letterWidth+interLetterSpace;
 
@@ -95,11 +94,23 @@ function writer(payload){
     let extra = 0;
     resetter();
     // calculate word total length with interletterspaces
-    totalWordLength = letters.reduce((acc,cur)=>{
-        let orderedLetterData = alphabet[cur].sort();
+    let lettersLength = letters.length;
+    letters.forEach((letter)=>{
+        let orderedLetterData = alphabet[letter].sort();
         let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
-        return acc+letterLength;
-    }) + ((letters.length-1)*interLetterSpace); // added spaces
+        console.log(`${letter}:${letterLength}`);
+        totalWordLength+= letterLength;
+    }) ;
+    totalWordLength+= ((lettersLength-1)*interLetterSpace); // added spaces
+
+    console.log(`totalwordlength:${totalWordLength}`);
+    console.log(`xMax:${xMax}`);
+    if(totalWordLength>xMax-1){
+        m2p({value:`Word ${payload.word} length is too long, shorten your word and try again!`});
+        console.log(`Word ${payload.word} length is too long, shorten your word and try again!`);
+        totalWordLength=0;
+        return false;
+    }
 
     //- animated or not
     console.log(payload.animate.switch);

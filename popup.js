@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener((request)=>{
             window[request.value]();
             break;
         default:
-            M.toast({html:`<b>${request.value}</b>`});
+            alert(request.value);
             break;
     }
     return true;
