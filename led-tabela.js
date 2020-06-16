@@ -1,5 +1,6 @@
 let i=0;
 let defaultColors = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'];
+let fancyColors = ['#FF5733','#33FF5B', '#DD33FF', '#7733FF', '#FF33B5','#FF8033']
 let xMax=0;
 let yMax=0;
 let interLetterSpace=1;
@@ -8,9 +9,14 @@ let leftPadding = 0;
 let animIterator=0;
 let rectNodeList=null;
 let animationStatus=true;
+let baseColor='#ebedf0';
+let profileName=null;
+let totalWordLength=0;
 //-----------------------------------------------------------------------------
 window.addEventListener('load',  ()=>{
     console.log('test yuklendik...');
+    let curURL = window.location.href;
+    profileName = curURL.split('github.com')[1].split('/')[1];
     document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="letterRecordDataButton">Show Data</button>';
     document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="clearTheDataButton">Clear Data</button>';
     document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="clearTheTableButton">Clear The Table</button>';
@@ -20,6 +26,7 @@ window.addEventListener('load',  ()=>{
     });
     document.querySelector('#clearTheTableButton').addEventListener('click', ()=>{
        resetter();
+        leftPadding=0;
     });
     document.querySelector('#clearTheDataButton').addEventListener('click',()=>{
         newLetterRecord=[];
@@ -28,6 +35,7 @@ window.addEventListener('load',  ()=>{
        setter(newLetterRecord,0,0);
     });
 
+    //
     rectNodeList = document.querySelectorAll('svg.js-calendar-graph-svg g > g > rect');
     rectNodeList.forEach((rectNode)=>{
         let x=Math.floor(i/7);
@@ -41,7 +49,21 @@ window.addEventListener('load',  ()=>{
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
+function colorSelection(sourceType){
+    let colorSelect= defaultColors[2];
+    switch (sourceType){
+        case 'randomFancy':
+            let fcl= fancyColors.length-1;
+            let rndOrder = Math.floor(Math.random()*fcl);
+            colorSelect = fancyColors[rndOrder];
+            break;
+        default:
+            colorSelect =  defaultColors[2];
+            break;
+    }
+    return colorSelect;
 
+}
 
 function toggleAnimation(){
     console.log(`animasyon durumu: ${animationStatus} idi`);
@@ -51,27 +73,29 @@ function toggleAnimation(){
 
 function resetter(){
     rectNodeList.forEach((rectNode)=>{
-        rectNode.style.setProperty("fill","#ebedf0", "important")
+        rectNode.style.setProperty("fill",baseColor, "important")
     })
 }
 
-function setter(data, letterWidth, totalWordLength){
+function setter(data){
+    let letterWidth = data[data.length-1][0]-data[0][0]+1;
     data.forEach((datum)=>{
-        console.log(`Total length: ${datum[0]+leftPadding} xMax: ${xMax}`);
         if(datum[0]+leftPadding>=xMax) return;
-        console.log(`leftPadding: ${leftPadding}`);
-        document.querySelector(`#ID_${datum[0]+leftPadding}-${datum[1]}`).style.setProperty("fill",defaultColors[4], "important");
+        document.querySelector(`#ID_${datum[0]+leftPadding}-${datum[1]}`).style.setProperty("fill",colorSelection('randomFancy'), "important");
     });
     leftPadding+=letterWidth+interLetterSpace;
+
 }
 
 function writer(payload){
     let letters = payload.word.split('');
-    console.log(payload.word)
+    if(letters.length<1){
+        letters = profileName.toUpperCase().split('');
+    }
     let extra = 0;
     resetter();
     // calculate word total length with interletterspaces
-    let totalWordLength = letters.reduce((acc,cur)=>{
+    totalWordLength = letters.reduce((acc,cur)=>{
         let orderedLetterData = alphabet[cur].sort();
         let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
         return acc+letterLength;
@@ -81,17 +105,12 @@ function writer(payload){
     console.log(payload.animate.switch);
     console.log(animationStatus);
     if(payload.animate.switch===true && animationStatus){
-        console.log(`Animasyon tarafi ok`);
         let animationTimer = window.setInterval(()=>{
             resetter();
             letters.forEach((letter)=>{
                 let lData = alphabet[letter];
                 lData.sort();
-                let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
-                setter(lData,letterWidth, totalWordLength);
-                console.log(`extra degeri: ${extra}`);
-                if(xMax===extra || !animationStatus) clearInterval(animationTimer);
-
+                setter(lData);
             });
             animIterator++;
             leftPadding=animIterator;
@@ -101,7 +120,7 @@ function writer(payload){
             let lData = alphabet[letter];
             lData.sort();
             let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
-            setter(lData,letterWidth,0);
+            setter(lData);
         })
     }
 }

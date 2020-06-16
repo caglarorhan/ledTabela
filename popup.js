@@ -2,7 +2,7 @@ window.addEventListener('load',()=>{
 
     // run process
     document.querySelector('#sendWordsButton').addEventListener('click',(e)=>{
-        let words = document.querySelector('#words').value;
+        let words = document.querySelector('#words').value.toUpperCase();
 
         //alert(words);
         let animationSwitch = document.querySelector('#animationSwitch').checked;
