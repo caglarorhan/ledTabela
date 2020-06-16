@@ -1,6 +1,4 @@
 let i=0;
-let defaultColors = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'];
-let fancyColors = ['#FF5733','#33FF5B', '#DD33FF', '#7733FF', '#FF33B5','#FF8033']
 let xMax=0;
 let yMax=0;
 let interLetterSpace=1;
@@ -49,26 +47,25 @@ window.addEventListener('load',  ()=>{
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
-function colorSelection(sourceType){
-    let colorSelect= defaultColors[2];
-    switch (sourceType){
-        case 'randomFancy':
-            let fcl= fancyColors.length-1;
+function colorSelection(options){
+    let colorChart= colorCharts[options.color.chartName];
+    let colorPickingType = options.color.colorPickingType;
+    let selectedColor = baseColor;
+
+    switch(colorPickingType){
+        case 'Random':
+            let fcl= colorChart.length-1;
             let rndOrder = Math.floor(Math.random()*fcl);
-            colorSelect = fancyColors[rndOrder];
+            selectedColor = colorChart[rndOrder];
+            break;
+        case 'Lineer':
+            selectedColor = colorChart[options.order];
             break;
         default:
-            colorSelect =  defaultColors[2];
             break;
     }
-    return colorSelect;
 
-}
-
-function toggleAnimation(){
-    console.log(`animasyon durumu: ${animationStatus} idi`);
-    animationStatus=!animationStatus;
-    console.log(`Simdi: ${animationStatus} oldu`)
+    return selectedColor;
 }
 
 function resetter(){
@@ -77,10 +74,10 @@ function resetter(){
     })
 }
 
-function setter(data){
+function setter(data, payload){
     let letterWidth = data[data.length-1][0]-data[0][0]+1;
     data.forEach((datum)=>{
-        document.querySelector(`#ID_${(datum[0]+leftPadding)%xMax}-${datum[1]}`).style.setProperty("fill",colorSelection('randomFancy'), "important");
+        document.querySelector(`#ID_${(datum[0]+leftPadding)%xMax}-${datum[1]}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
     });
     leftPadding+=letterWidth+interLetterSpace;
 
@@ -121,7 +118,7 @@ function writer(payload){
             letters.forEach((letter)=>{
                 let lData = alphabet[letter];
                 lData.sort();
-                setter(lData);
+                setter(lData, payload);
             });
             animIterator++;
             leftPadding=animIterator;
@@ -131,7 +128,7 @@ function writer(payload){
             let lData = alphabet[letter];
             lData.sort();
             let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
-            setter(lData);
+            setter(lData,payload);
         })
     }
 }

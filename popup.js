@@ -6,16 +6,16 @@ window.addEventListener('load',()=>{
 
         //alert(words);
         let animationSwitch = document.querySelector('#animationSwitch').checked;
-        //m2c({value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:true},});
-        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch}}, callBack:{callBackName:null, echo:false}});
 
+        //m2c({value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:true},});
+        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch}, color:{chartName:'lgbtColors', colorPickingType: 'Lineer', set:[]}}, callBack:{callBackName:null, echo:false}});
     });
 
-    // stop process
-    document.querySelector('#toggleProcess').addEventListener('click',()=>{
-        m2c({value:'toggleAnimation', action:'runRequest'})
-    })
+    // colorChart and picking type selections
 
+
+
+    //--<
 });
 
 

@@ -4,22 +4,29 @@
     <meta charset="UTF-8">
     <title>Led Tabela</title>
 </head>
-<body style="padding:0; margin: 0;">
-<div style="width: 100%; padding:3px; margin: 0; border-bottom: 2px solid grey; background-color: green; color: white; font-size: 14px; font-weight: bold; text-align: center">Led Tabela</div>
+<body style="padding:0; margin: 0; width:300px; height:300px;">
+<div style="width: 100%; padding:3px; margin: 0; border-bottom: 2px solid grey; background-color: black; color: red; font-size: 14px; font-weight: bold; text-align: center">Led Tabela</div>
 <div class="container">
+    <div>
+        Color Chart:
+        <select name="colorChartSelection" id="colorChartSelection">
+
+        </select>
+        <br>
+        Color Picking Type:<select name="colorPickingTypeSelection" id="colorPickingTypeSelection"></select>
+    </div>
     <div style="padding:5px";>
         <input type="text" id="words" placeholder="Input some words">
     </div>
     <div class="row">
         <div class="">
-            <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?">
+            Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?">
+            <br>
             <button class="button" id="sendWordsButton">RUN</button>
-            <span style="width: 100px">.</span>
-            <button class="button" id="toggleProcess">TOGGLE</button>
         </div>
     </div>
 </div>
-<div style="width:100%; padding:3px; margin:0; background-color: green; color:white ">Icons from Freepik</div>
+<div style="width:100%; padding:3px; margin:0; background-color: black; color:red ">Icons from Freepik</div>
 <script src="./popup.js"></script>
 </body>
 </html>

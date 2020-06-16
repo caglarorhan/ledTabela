@@ -22,7 +22,8 @@
       "all_frames": false,
       "js": [
         "./led-tabela.js",
-        "./alphabet.js"
+        "./alphabet.js",
+        "./colorCharts.js"
       ],
       "match_about_blank": true
     }
@@ -30,13 +31,13 @@
   "permissions": [
     "storage",
     "downloads",
-    "activeTab",
+    "https://*.github.com/*",
     "tabs"
   ],
   "web_accessible_resources": [
-    "./skeleton.js",
     "./led-tabela.js",
-    "./alphabet.js"
+    "./alphabet.js",
+    "./colorCharts.js"
   ],
   "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.gstatic.com; object-src 'self';"
 }
