@@ -90,7 +90,9 @@ function resetter(){
 function setter(data, payload){
     let letterWidth = data[data.length-1][0]-data[0][0]+1;
     data.forEach((datum)=>{
-        document.querySelector(`#ID_${(datum[0]+leftPadding)%xMax}-${datum[1]}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
+        //document.querySelector(`#ID_${(datum[0]+leftPadding)%xMax}-${datum[1]}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
+
+        document.querySelector(`#ID_${Math.abs((leftPadding+datum[0]+xMax)%xMax)}-${datum[1]}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
     });
     leftPadding+=letterWidth+interLetterSpace;
 
@@ -123,8 +125,8 @@ function writer(payload){
     }
 
     //- animated or not
-    console.log(payload.animate.switch);
-    console.log(animationStatus);
+    //console.log(payload.animate.switch);
+    //console.log(animationStatus);
     if(payload.animate.switch===true && animationStatus){
         let animationTimer = window.setInterval(()=>{
             resetter();
@@ -133,9 +135,14 @@ function writer(payload){
                 lData.sort();
                 setter(lData, payload);
             });
-            animIterator++;
+            if(payload.animate.animationDirection==='Right'){
+                animIterator++;
+            }else{
+                animIterator--;
+            }
+
             leftPadding=animIterator;
-        },200)
+        },1000)
     }else{
         letters.forEach((letter)=>{
             let lData = alphabet[letter];

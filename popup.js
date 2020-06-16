@@ -10,8 +10,10 @@ window.addEventListener('load',()=>{
         let selectedChartName = document.querySelector('#colorChartSelection').value;
         if(selectedChartName===''){alert('Pick a color chart!'); return false;}
         let selectedColorPickingType = document.querySelector('#colorPickingTypeSelection').value;
-        if(colorPickingTypeSelection===''){alert('Pick a color picking type!'); return false;}
-        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[]}}, callBack:{callBackName:null, echo:false}});
+        if(selectedColorPickingType===''){alert('Pick a color picking type!'); return false;}
+        let animationDirection='Left';
+        if(document.querySelector('#animationDirection2Right').checked){animationDirection='Right'}
+        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch, animationDirection: animationDirection}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[]}}, callBack:{callBackName:null, echo:false}});
     });
 
 
