@@ -1,22 +1,41 @@
 window.addEventListener('load',()=>{
+    // colorChart and picking type selections
+    m2c({value:'getColorChartData', action:'runRequest', callBack: {callBackName: 'setColorSelectionOptions', echo:true}})
 
     // run process
     document.querySelector('#sendWordsButton').addEventListener('click',(e)=>{
         let words = document.querySelector('#words').value.toUpperCase();
-
-        //alert(words);
         let animationSwitch = document.querySelector('#animationSwitch').checked;
-
-        //m2c({value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:true},});
-        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch}, color:{chartName:'lgbtColors', colorPickingType: 'Lineer', set:[]}}, callBack:{callBackName:null, echo:false}});
+        //m2c({value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:true}});
+        let selectedChartName = document.querySelector('#colorChartSelection').value;
+        if(selectedChartName===''){alert('Pick a color chart!'); return false;}
+        let selectedColorPickingType = document.querySelector('#colorPickingTypeSelection').value;
+        if(colorPickingTypeSelection===''){alert('Pick a color picking type!'); return false;}
+        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[]}}, callBack:{callBackName:null, echo:false}});
     });
-
-    // colorChart and picking type selections
 
 
 
     //--<
 });
+
+function setColorSelectionOptions(data){
+    //alert('Veri geldi mi:'+data);
+    let colorChartNameList = data.colorChartNameList;
+    let colorPickingTypeList = data.colorPickingTypeList;
+    colorChartNameList.forEach((chartName)=>{
+        let option = document.createElement('option');
+        option.value = chartName;
+        option.textContent = chartName;
+        document.querySelector('#colorChartSelection').append(option);
+    });
+    colorPickingTypeList.forEach((pickingType)=>{
+        let option = document.createElement('option');
+        option.value = pickingType;
+        option.textContent =pickingType;
+        document.querySelector('#colorPickingTypeSelection').append(option);
+    });
+}
 
 
 // in minimal usage just value is enough, but if you are request to run some functions (action is runRequest) so value is the function name you want to run and parameters are in payload object.
@@ -32,7 +51,11 @@ function m2c(messageToContentSide){
 chrome.runtime.onMessage.addListener((request)=>{
     switch(request.action){
         case "runRequest":
-            window[request.value]();
+            if(request.payload){
+                window[request.value](request.payload);
+            }else{
+                window[request.value]();
+            }
             break;
         default:
             alert(request.value);

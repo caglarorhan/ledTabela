@@ -6,27 +6,29 @@
 </head>
 <body style="padding:0; margin: 0; width:300px; height:300px;">
 <div style="width: 100%; padding:3px; margin: 0; border-bottom: 2px solid grey; background-color: black; color: red; font-size: 14px; font-weight: bold; text-align: center">Led Tabela</div>
-<div class="container">
+<div style="min-height: 100%">
     <div>
         Color Chart:
         <select name="colorChartSelection" id="colorChartSelection">
-
+            <option value="">Please select a color chart</option>
         </select>
         <br>
-        Color Picking Type:<select name="colorPickingTypeSelection" id="colorPickingTypeSelection"></select>
+        Color Picking Type:<select name="colorPickingTypeSelection" id="colorPickingTypeSelection">
+        <option value="">Please select a color picking type</option>
+    </select>
     </div>
     <div style="padding:5px";>
-        <input type="text" id="words" placeholder="Input some words">
+       Word:  <input type="text" id="words" placeholder="Input some words">
     </div>
     <div class="row">
         <div class="">
             Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?">
             <br>
-            <button class="button" id="sendWordsButton">RUN</button>
+            <button class="button" id="sendWordsButton" style="float:right">RUN</button>
         </div>
     </div>
 </div>
-<div style="width:100%; padding:3px; margin:0; background-color: black; color:red ">Icons from Freepik</div>
+<div style="width:100%; padding:3px; margin:0; background-color: black; color:red; height:20px">Icons from Freepik</div>
 <script src="./popup.js"></script>
 </body>
 </html>

@@ -47,6 +47,19 @@ window.addEventListener('load',  ()=>{
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
+
+function getColorChartData(){
+    console.log('getColorchartData cagirildi')
+    let colorOptions ={};
+    colorOptions.colorChartNameList = Object.keys(colorCharts);
+    colorOptions.colorPickingTypeList = colorPickingTypes;
+    console.log(`colorOptions: ${JSON.stringify(colorOptions)}`);
+    return colorOptions;
+}
+
+
+
+
 function colorSelection(options){
     let colorChart= colorCharts[options.color.chartName];
     let colorPickingType = options.color.colorPickingType;
@@ -70,7 +83,7 @@ function colorSelection(options){
 
 function resetter(){
     rectNodeList.forEach((rectNode)=>{
-        rectNode.style.setProperty("fill",baseColor, "important")
+        rectNode.style.setProperty("fill",baseColor, "important");
     })
 }
 
@@ -143,16 +156,17 @@ function m2p(outgoingMessage){
 // {value:'', action:'runRequest', payload:{}, callBack:null ,echo:true} // if echo is true so give the just ran functions name as callback
 //gelen
 //{value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:false}}
-chrome.runtime.onMessage.addListener(  (request)=>{
+chrome.runtime.onMessage.addListener(  async (request)=>{
     switch (request.action) {
         case 'runRequest':
             let results={};
             if(typeof request.payload ==='object' && request.payload.constructor===Object && Object.keys(request.payload).length>0){
-                results = window[request.value](request.payload);
+                results = await window[request.value](request.payload);
             }else{
-                results = window[request.value]();
+                results = await window[request.value]();
             }
             if(request.callBack && request.callBack.callBackName){
+                console.log(`result gonderilecek: ${results}`)
                 m2p({value:request.callBack.callBackName, action:'runRequest',payload: results,})
             }
 
