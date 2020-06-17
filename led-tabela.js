@@ -3,8 +3,8 @@ let xMax=0;
 let yMax=0;
 let interLetterSpace=1;
 let newLetterRecord = [];
-let leftPadding = 0;
-let animIterator=0;
+let leftMargin = 0;
+let leftPadding=0;
 let rectNodeList=null;
 let animationStatus=true;
 let baseColor='#ebedf0';
@@ -49,7 +49,7 @@ window.addEventListener('load',  ()=>{
 //-------------------------------------------------------------------------------------------------------------------
 
 function getColorChartData(){
-    console.log('getColorchartData cagirildi')
+    console.log('getColorchartData cagirildi');
     let colorOptions ={};
     colorOptions.colorChartNameList = Object.keys(colorCharts);
     colorOptions.colorPickingTypeList = colorPickingTypes;
@@ -87,27 +87,46 @@ function resetter(){
 
 function setter(letter, payload){
     let lData = alphabet[letter];
+    console.log(`leftMargin:${leftMargin}`);
     lData.sort();
     let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
     lData.forEach((datum)=>{
-        let xPos = datum[0]+leftPadding;
+        let xPos = datum[0]+leftPadding+leftMargin;
         let yPos = datum[1];
-        if(xPos>=xMax && payload.animate.switch===true && animationStatus){
-            xPos = xPos%xMax;
+        //-------------------------------------
+        if(animationStatus){//animasyon acik
+            if(payload.animate.switch){// animasyon switch true gelmis
+                if(payload.animate.animationDirection!=='Right'){// animasyon yonu saga dogruysa
+                    //console.log(leftMargin);
+                    xPos = (xMax+(xPos%xMax))%xMax;
+                    console.log(xPos);
+                }else{
+                    xPos = xPos%xMax;
+                }
+            }else{
+                xPos = xPos%xMax;
+            }
         }else{
-            return false;
+            xPos = xPos%xMax;
+
         }
+        //------------------------------------
+
             document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
+
     });
-    leftPadding+=letterWidth;
+    leftPadding+=letterWidth+1;
 }
 
 
 function writer(payload){
-    let animIterationCount=0;
+    resetter();
+    leftPadding=0;
+    leftMargin=0;
+    totalWordLength=0;
     let letters = payload.word.split('');
     let animationDirection = payload.animate.animationDirection;
-    resetter();
+
 
     let lettersLength = letters.length;
     letters.forEach((letter)=>{
@@ -137,13 +156,9 @@ function writer(payload){
             resetter();
             letters.forEach((letter)=>{
                 setter(letter, payload);
-                if(animationDirection==='Right'){
-                    leftPadding++;
-                }else{
-                    leftPadding--;
-                }
             });
-leftPadding = ++animIterationCount;
+            animationDirection==='Right'?leftMargin++:leftMargin--;
+            leftPadding=0;
         },500);
 
     }else{
