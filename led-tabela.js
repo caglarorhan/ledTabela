@@ -61,23 +61,21 @@ function getColorChartData(){
 
 
 function colorSelection(options){
-    let colorChart= colorCharts[options.color.chartName];
-    let colorPickingType = options.color.colorPickingType;
-    let selectedColor = baseColor;
-
-    switch(colorPickingType){
-        case 'Random':
-            let fcl= colorChart.length-1;
-            let rndOrder = Math.floor(Math.random()*fcl);
-            selectedColor = colorChart[rndOrder];
-            break;
-        case 'Lineer':
-            selectedColor = colorChart[options.order];
-            break;
-        default:
-            break;
-    }
-
+        let selectedColor = baseColor;
+        let colorChart= colorCharts[options.color.chartName];
+        let colorPickingType = options.color.colorPickingType;
+        switch(colorPickingType){
+            case 'Random':
+                let fcl= colorChart.length-1;
+                let rndOrder = Math.floor(Math.random()*fcl);
+                selectedColor = colorChart[rndOrder];
+                break;
+            case 'Lineer':
+                selectedColor = colorChart[options.order];
+                break;
+            default:
+                break;
+        }
     return selectedColor;
 }
 
@@ -87,31 +85,38 @@ function resetter(){
     })
 }
 
-function setter(data, payload){
-    let letterWidth = data[data.length-1][0]-data[0][0]+1;
-    data.forEach((datum)=>{
-        //document.querySelector(`#ID_${(datum[0]+leftPadding)%xMax}-${datum[1]}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
-
-        document.querySelector(`#ID_${Math.abs((leftPadding+datum[0]+xMax)%xMax)}-${datum[1]}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
+function setter(letter, payload){
+    let lData = alphabet[letter];
+    lData.sort();
+    let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
+    lData.forEach((datum)=>{
+        let xPos = datum[0]+leftPadding;
+        let yPos = datum[1];
+        if(xPos>=xMax && payload.animate.switch===true && animationStatus){
+            xPos = xPos%xMax;
+        }else{
+            return false;
+        }
+            document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
     });
-    leftPadding+=letterWidth+interLetterSpace;
-
+    leftPadding+=letterWidth;
 }
 
+
 function writer(payload){
+    let animIterationCount=0;
     let letters = payload.word.split('');
-    if(letters.length<1){
-        letters = profileName.toUpperCase().split('');
-    }
-    let extra = 0;
+    let animationDirection = payload.animate.animationDirection;
     resetter();
-    // calculate word total length with interletterspaces
+
     let lettersLength = letters.length;
     letters.forEach((letter)=>{
-        let orderedLetterData = alphabet[letter].sort();
-        let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
-        console.log(`${letter}:${letterLength}`);
-        totalWordLength+= letterLength;
+        if(alphabet[letter]){
+            let orderedLetterData = alphabet[letter].sort();
+            let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
+            console.log(`${letter}:${letterLength}`);
+            totalWordLength+= letterLength;
+        }
     }) ;
     totalWordLength+= ((lettersLength-1)*interLetterSpace); // added spaces
 
@@ -131,24 +136,19 @@ function writer(payload){
         let animationTimer = window.setInterval(()=>{
             resetter();
             letters.forEach((letter)=>{
-                let lData = alphabet[letter];
-                lData.sort();
-                setter(lData, payload);
+                setter(letter, payload);
+                if(animationDirection==='Right'){
+                    leftPadding++;
+                }else{
+                    leftPadding--;
+                }
             });
-            if(payload.animate.animationDirection==='Right'){
-                animIterator++;
-            }else{
-                animIterator--;
-            }
+leftPadding = ++animIterationCount;
+        },500);
 
-            leftPadding=animIterator;
-        },1000)
     }else{
         letters.forEach((letter)=>{
-            let lData = alphabet[letter];
-            lData.sort();
-            let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
-            setter(lData,payload);
+            setter(letter,payload);
         })
     }
 }
