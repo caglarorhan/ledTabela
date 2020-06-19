@@ -18,15 +18,18 @@
     </select>
     </div>
     <div style="padding:5px";>
-       Word:  <input type="text" id="words" placeholder="Input some words" value="abcdefg">
+       Word:  <input type="text" id="words" placeholder="Input some words" value="abcdefgh">
     </div>
     <div class="row">
         <div class="">
-            Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?">
+            Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?"> bgcolor:
+            <input type="text" value="#ebedf0" id="bgColor" placeholder="bgColor Code">
             <br>
             To the left<input type="radio" name="direction" id="animationDirection2Left" value="left" checked="checked">
             <input type="radio" name="direction" id="animationDirection2Right" value="right"> To the Right
-            <button class="button" id="sendWordsButton" style="float:right">RUN</button>
+            <p>
+                <button class="button" id="sendWordsButton" style="float:right">RUN</button></p>
+                <button class="button" id="resetButton" style="float:right">RESET</button></p>
         </div>
     </div>
 </div>

@@ -30,7 +30,7 @@ window.addEventListener('load',  ()=>{
         newLetterRecord=[];
     });
     document.querySelector('#writeData2TableButton').addEventListener('click',()=>{
-       setter(newLetterRecord,0,0);
+       setter(newLetterRecord,{word:'', animate:{switch:false, animationDirection: null}, color:{chartName:'defaultColors', colorPickingType: 'Lineer', set:[]}});
     });
 
     //
@@ -81,12 +81,12 @@ function colorSelection(options){
 
 function resetter(){
     rectNodeList.forEach((rectNode)=>{
-        rectNode.style.setProperty("fill",baseColor, "important");
+        rectNode.style.setProperty("fill", baseColor, "important");
     })
 }
 
 function setter(letter, payload){
-    let lData = alphabet[letter];
+    let lData = typeof letter==='string'? alphabet[letter]: letter;
     console.log(`leftMargin:${leftMargin}`);
     lData.sort();
     let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
@@ -120,6 +120,7 @@ function setter(letter, payload){
 
 
 function writer(payload){
+    baseColor = payload.color.bgColor;
     resetter();
     leftPadding=0;
     leftMargin=0;

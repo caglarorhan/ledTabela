@@ -7,13 +7,14 @@ window.addEventListener('load',()=>{
         let words = document.querySelector('#words').value.toUpperCase();
         let animationSwitch = document.querySelector('#animationSwitch').checked;
         //m2c({value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:true}});
+        let bgColor = document.querySelector('#bgColor').value;
         let selectedChartName = document.querySelector('#colorChartSelection').value;
         if(selectedChartName===''){alert('Pick a color chart!'); return false;}
         let selectedColorPickingType = document.querySelector('#colorPickingTypeSelection').value;
         if(selectedColorPickingType===''){alert('Pick a color picking type!'); return false;}
         let animationDirection='Left';
         if(document.querySelector('#animationDirection2Right').checked){animationDirection='Right'}
-        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch, animationDirection: animationDirection}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[]}}, callBack:{callBackName:null, echo:false}});
+        m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch, animationDirection: animationDirection}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[], bgColor:bgColor}}, callBack:{callBackName:null, echo:false}});
     });
 
 
