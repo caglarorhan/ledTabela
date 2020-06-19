@@ -20,6 +20,14 @@ window.addEventListener('load',()=>{
     //reset proces
     document.querySelector('#resetButton').addEventListener('click',()=>{
         m2c({value:'resetProcess',action:'runRequest'});
+    });
+
+    //animationDirectionModifier
+    document.querySelector('#animationDirection2Left').addEventListener('click',()=>{
+        m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Left'}})
+    });
+    document.querySelector('#animationDirection2Right').addEventListener('click',()=>{
+        m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Right'}})
     })
 
 

@@ -5,6 +5,7 @@ let interLetterSpace=1;
 let newLetterRecord = [];
 let leftMargin = 0;
 let leftPadding=0;
+let animationDirection = 'Right';
 let rectNodeList=null;
 let animationStatus=true;
 let baseColor='#ebedf0';
@@ -79,6 +80,11 @@ function colorSelection(options){
     return selectedColor;
 }
 
+function animationModifier(payload){
+    if(payload.animationDirection){animationDirection= payload.animationDirection};
+
+}
+
 function resetProcess(){
     animationStatus=false;
     resetter();
@@ -135,7 +141,7 @@ function writer(payload){
     leftMargin=0;
     totalWordLength=0;
     let letters = payload.word.split('');
-    let animationDirection = payload.animate.animationDirection;
+    animationDirection = payload.animate.animationDirection;
 
 
     let lettersLength = letters.length;
