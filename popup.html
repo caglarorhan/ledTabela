@@ -14,7 +14,7 @@
         </select>
         <br>
         Color Picking Type:<select name="colorPickingTypeSelection" id="colorPickingTypeSelection">
-        <option value="">Please select a color picking type</option>
+        <option value="">Color picking type</option>
     </select>
     </div>
     <div style="padding:5px";>
@@ -22,17 +22,19 @@
     </div>
     <div class="row">
         <div class="">
-            Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?"> bgcolor:
-            <input type="text" value="#ebedf0" id="bgColor" placeholder="bgColor Code">
+            Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?"><br>
+            bgcolor:
+            <input type="text" value="#ebedf0" id="bgColor" placeholder="bgColor Code" size="8">
             <br>
             To the left<input type="radio" name="direction" id="animationDirection2Left" value="left" checked="checked">
             <input type="radio" name="direction" id="animationDirection2Right" value="right"> To the Right
             <br>
             <input type="range" class="itrs" id="animationSpeed" min="0" max="5000" value="500" step="100" data-sync-to="animationSpeedData" data-two-way-bind="true">
-            <input type="text" id="animationSpeedData" size="5" value="500">
-            <p>
-                <button class="button" id="sendWordsButton" style="float:right">RUN</button></p>
-                <button class="button" id="resetButton" style="float:right">RESET</button></p>
+            <input type="text" id="animationSpeedData" size="4" value="500">
+            <p style="margin-top:30px">
+                <button class="button" id="resetButton" style="float:left">RESET</button>
+                <button class="button" id="sendWordsButton" style="float:right">RUN</button>
+                </p>
         </div>
     </div>
 </div>
