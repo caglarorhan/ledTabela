@@ -79,6 +79,14 @@ function colorSelection(options){
     return selectedColor;
 }
 
+function resetProcess(){
+    animationStatus=false;
+    resetter();
+    leftPadding=0;
+    leftMargin=0;
+    totalWordLength=0;
+}
+
 function resetter(){
     rectNodeList.forEach((rectNode)=>{
         rectNode.style.setProperty("fill", baseColor, "important");
@@ -120,6 +128,7 @@ function setter(letter, payload){
 
 
 function writer(payload){
+    animationStatus=true;
     baseColor = payload.color.bgColor;
     resetter();
     leftPadding=0;
@@ -155,6 +164,8 @@ function writer(payload){
     if(payload.animate.switch===true && animationStatus){
         let animationTimer = window.setInterval(()=>{
             resetter();
+            console.log(animationStatus);
+            if(animationStatus!==true){clearInterval(animationTimer); return false;}
             letters.forEach((letter)=>{
                 setter(letter, payload);
             });

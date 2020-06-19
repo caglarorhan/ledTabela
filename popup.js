@@ -1,6 +1,6 @@
 window.addEventListener('load',()=>{
     // colorChart and picking type selections
-    m2c({value:'getColorChartData', action:'runRequest', callBack: {callBackName: 'setColorSelectionOptions', echo:true}})
+    m2c({value:'getColorChartData', action:'runRequest', callBack: {callBackName: 'setColorSelectionOptions', echo:true}});
 
     // run process
     document.querySelector('#sendWordsButton').addEventListener('click',(e)=>{
@@ -16,6 +16,11 @@ window.addEventListener('load',()=>{
         if(document.querySelector('#animationDirection2Right').checked){animationDirection='Right'}
         m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch, animationDirection: animationDirection}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[], bgColor:bgColor}}, callBack:{callBackName:null, echo:false}});
     });
+
+    //reset proces
+    document.querySelector('#resetButton').addEventListener('click',()=>{
+        m2c({value:'resetProcess',action:'runRequest'});
+    })
 
 
 
