@@ -27,6 +27,9 @@
             <br>
             To the left<input type="radio" name="direction" id="animationDirection2Left" value="left" checked="checked">
             <input type="radio" name="direction" id="animationDirection2Right" value="right"> To the Right
+            <br>
+            <input type="range" class="itrs" id="animationSpeed" min="0" max="5000" value="500" step="100" data-sync-to="animationSpeedData" data-two-way-bind="true">
+            <input type="text" id="animationSpeedData" size="5" value="500">
             <p>
                 <button class="button" id="sendWordsButton" style="float:right">RUN</button></p>
                 <button class="button" id="resetButton" style="float:right">RESET</button></p>
@@ -35,5 +38,6 @@
 </div>
 <div style="width:100%; padding:3px; margin:0; background-color: black; color:red; height:20px">Icons from Freepik</div>
 <script src="./popup.js"></script>
+<script src="./itrs.js"></script>
 </body>
 </html>

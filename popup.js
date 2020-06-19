@@ -28,8 +28,21 @@ window.addEventListener('load',()=>{
     });
     document.querySelector('#animationDirection2Right').addEventListener('click',()=>{
         m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Right'}})
-    })
+    });
 
+// animation speed range input
+    document.querySelector('#animationSpeed').addEventListener('change',(e)=>{
+        m2c({value:'animationModifier', action:'runRequest', payload: {animationSpeed:e.target.value}})
+    });
+// animation speed range input
+    document.querySelector('#animationSpeedData').addEventListener('input',(e)=>{
+        m2c({value:'animationModifier', action:'runRequest', payload: {animationSpeed:e.target.value}})
+    });
+
+    // board bgColor
+    document.querySelector('#bgColor').addEventListener('change',(e)=>{
+       m2c({value:'animationModifier', action:'runRequest', payload:{baseColor:e.target.value}})
+    })
 
 
     //--<

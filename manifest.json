@@ -37,7 +37,8 @@
   "web_accessible_resources": [
     "./led-tabela.js",
     "./alphabet.js",
-    "./colorCharts.js"
+    "./colorCharts.js",
+    "./itrs.js"
   ],
   "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.gstatic.com; object-src 'self';"
 }

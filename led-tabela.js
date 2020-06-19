@@ -6,6 +6,7 @@ let newLetterRecord = [];
 let leftMargin = 0;
 let leftPadding=0;
 let animationDirection = 'Right';
+let animationSpeed = 500;
 let rectNodeList=null;
 let animationStatus=true;
 let baseColor='#ebedf0';
@@ -81,8 +82,10 @@ function colorSelection(options){
 }
 
 function animationModifier(payload){
-    if(payload.animationDirection){animationDirection= payload.animationDirection};
-
+    //console.log(payload);
+    if(payload.animationDirection){animationDirection= payload.animationDirection}
+    if(payload.animationSpeed){animationSpeed=payload.animationSpeed}
+    if(payload.baseColor){baseColor=payload.baseColor}
 }
 
 function resetProcess(){
@@ -101,7 +104,7 @@ function resetter(){
 
 function setter(letter, payload){
     let lData = typeof letter==='string'? alphabet[letter]: letter;
-    console.log(`leftMargin:${leftMargin}`);
+    //console.log(`leftMargin:${leftMargin}`);
     lData.sort();
     let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
     lData.forEach((datum)=>{
@@ -113,7 +116,7 @@ function setter(letter, payload){
                 if(payload.animate.animationDirection!=='Right'){// animasyon yonu saga dogruysa
                     //console.log(leftMargin);
                     xPos = (xMax+(xPos%xMax))%xMax;
-                    console.log(xPos);
+                    //console.log(xPos);
                 }else{
                     xPos = xPos%xMax;
                 }
@@ -149,14 +152,14 @@ function writer(payload){
         if(alphabet[letter]){
             let orderedLetterData = alphabet[letter].sort();
             let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
-            console.log(`${letter}:${letterLength}`);
+           // console.log(`${letter}:${letterLength}`);
             totalWordLength+= letterLength;
         }
     }) ;
     totalWordLength+= ((lettersLength-1)*interLetterSpace); // added spaces
 
-    console.log(`totalwordlength:${totalWordLength}`);
-    console.log(`xMax:${xMax}`);
+    //console.log(`totalwordlength:${totalWordLength}`);
+    //console.log(`xMax:${xMax}`);
     if(totalWordLength>xMax-1){
         m2p({value:`Word ${payload.word} length is too long, shorten your word and try again!`});
         console.log(`Word ${payload.word} length is too long, shorten your word and try again!`);
@@ -168,16 +171,24 @@ function writer(payload){
     //console.log(payload.animate.switch);
     //console.log(animationStatus);
     if(payload.animate.switch===true && animationStatus){
-        let animationTimer = window.setInterval(()=>{
-            resetter();
-            console.log(animationStatus);
-            if(animationStatus!==true){clearInterval(animationTimer); return false;}
-            letters.forEach((letter)=>{
-                setter(letter, payload);
-            });
-            animationDirection==='Right'?leftMargin++:leftMargin--;
-            leftPadding=0;
-        },500);
+
+        let animateIt = ()=>{
+            let animationTimer = window.setTimeout(()=>{
+                resetter();
+                //console.log(animationStatus);
+                if(animationStatus!==true){clearTimeout(animationTimer); return false;}
+                letters.forEach((letter)=>{
+                    setter(letter, payload);
+                });
+                animationDirection==='Right'?leftMargin++:leftMargin--;
+                leftPadding=0;
+                clearTimeout(animationTimer);
+                animateIt();
+            },animationSpeed);
+            //console.log('Fonksiyon bitti')
+        };
+        animateIt();
+
 
     }else{
         letters.forEach((letter)=>{
