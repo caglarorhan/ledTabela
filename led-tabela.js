@@ -21,7 +21,12 @@ window.addEventListener('load',  ()=>{
     profileName = curURL.split('github.com')[1].split('/')[1];
 
     // TODO: alphabet.js verisi wLS ye aktarilacak
+    let alpha = JSON.parse(wLS.getItem('alphabet'));
+    Object.keys(alphabet).forEach((key)=>{if(!alpha[key]){alpha[key]=alphabet[key];}});
+    wLS.setItem('alphabet',JSON.stringify(alpha));
+
     // TODO: draw dugmesi yapistirilmis datayi tabloya aktaracak
+
     // TODO: wLS deki alphabet keyleri fihrist gibi gosterilip tiklandiginda data bolmesine verisini aktaracak
     // TODO: colorChartlar wLS ye aktarilacak, kendi cahartlarini olusturmalari saglanacak
     // TODO: schedule edilen (reminder) noktalarin tarihlerinde uyari mesaji/email/sms gibi secenekelr olacak
