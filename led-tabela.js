@@ -12,6 +12,8 @@ let animationStatus=true;
 let baseColor='#ebedf0';
 let profileName=null;
 let totalWordLength=0;
+let wLS = window.localStorage;
+wLS.setItem('alphabet',JSON.stringify({}))
 //-----------------------------------------------------------------------------
 window.addEventListener('load',  ()=>{
     console.log('test yuklendik...');
@@ -27,17 +29,17 @@ window.addEventListener('load',  ()=>{
     let boxDiv = document.createElement('div');  boxDiv.classList.add(...divClassList); boxDiv.id = 'dataCumulative';
     boxLi.append(boxDiv);
     boxDiv.innerHTML=`<div id="dataDiv" style="width:100%">
-                        <button class="btn mt-1 mb-1" type="button">Save2 LS</button>
-                        <button class="btn mt-1 mb-1" type="button">Save</button>
+                        <button class="btn mt-1 mb-1" type="button" id="save2LSAlphabetButton">Save2 LS Alphabet</button>
+                        <button class="btn mt-1 mb-1" type="button">Copy</button>
                         <br>Written Data:
-                            <p id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></p></div>`;
+                            <textarea id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></textarea></div>`;
 
     let boxLi2 = document.createElement('li'); boxContainerOl.append(boxLi2); boxLi2.classList.add(...liClassList);
     let boxDiv2 = document.createElement('div'); boxLi2.append(boxDiv2); boxDiv2.classList.add(...divClassList); boxDiv2.id = 'remindersList';
     boxDiv2.innerHTML = '<div>Saved Push/Commit Reminders Schedule</div>';
 
 
-    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<select  id="processSelection"><option value="">Select a process</option></select><span style="color:red; font-weight: bold">&#8592; Pattern Creation Options</span>';
+    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<select  id="processSelection"><option value="">Select a process</option></select><span style="color:red; font-weight: bold">&#8592; Pattern Creation Options</span><span style="margin-left: 10px;"><input type="color" value="#ff0000" id="selectedColor"> </span>';
     let processSelection = document.querySelector('#processSelection');
     processSelection.addEventListener('change',(e)=>{processSelect(e.target.value)});
     let clearTheDataButton = document.createElement('option'); clearTheDataButton.textContent='Clear The Data'; clearTheDataButton.value='clearTheDataButton';processSelection.append(clearTheDataButton);
@@ -48,14 +50,14 @@ window.addEventListener('load',  ()=>{
         switch(processName){
             case 'clearTheDataButton' :
                 newLetterRecord=[];
-                document.querySelector('#dataP').textContent= `${JSON.stringify(newLetterRecord)}`;
+                document.querySelector('#dataP').value= `${JSON.stringify(newLetterRecord)}`;
                 break;
             case 'clearTheTableButton' :
                 resetter();
                 leftPadding=0;
                 break;
             case 'writeData2TableButton' :
-                setter(newLetterRecord,{word:'', animate:{switch:false, animationDirection: null}, color:{chartName:'defaultColors', colorPickingType: 'Lineer', set:[]}});
+                setter(newLetterRecord,{});
                 break;
             default:
 
@@ -66,23 +68,38 @@ window.addEventListener('load',  ()=>{
     rectNodeList = document.querySelectorAll('svg.js-calendar-graph-svg g > g > rect');
     rectNodeList.forEach((rectNode)=>{
 
-        rectNode.addEventListener('click',(e)=>{
-            e.target.style.setProperty("fill",'red', "important");
-        });
-
         let x=Math.floor(i/7);
         let y = i%7;
         rectNode.setAttribute("id", `ID_${x}-${y}`);
-        rectNode.addEventListener('click',()=>{
-            newLetterRecord.push([x,y]);
-            document.querySelector('#dataP').textContent= `${JSON.stringify(newLetterRecord)}`;
+        rectNode.addEventListener('click',(e)=>{
+            // 3. parametre color pickerdan alinacak
+            let selectedColor = document.querySelector('#selectedColor').value;
+            newLetterRecord.push([x,y,selectedColor]);
+            document.querySelector('#dataP').value= `${JSON.stringify(newLetterRecord)}`;
+            e.target.style.setProperty("fill",selectedColor, "important");
         });
         xMax = x;
         yMax = y;
         i++;
     });
 
+    //TODO: Selecting original github contribution colors
+// default colors (contribution colors) to color selector
+//     let liler = document.querySelectorAll('.legend li');
+//     liler.forEach((i)=>{
+//         i.addEventListener('click',(e)=>{
+//             document.querySelector('#selectedColor').value=e.target.style.backgroundColor;
+//         })
+//     })
 
+//save2LSAlphabetButton
+    document.querySelector('#save2LSAlphabetButton').addEventListener('click',()=>{
+        let alphabetElementName = prompt('Please write a name for your data to insert into your local storage alphabet.');
+        let dataP = document.querySelector('#dataP').value;
+        let lsAlphabet = JSON.parse(wLS.getItem('alphabet'));
+        lsAlphabet[alphabetElementName] = dataP;
+        wLS.setItem('alphabet',JSON.stringify(lsAlphabet));
+    })
 
 //--<
 });
