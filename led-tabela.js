@@ -13,13 +13,21 @@ let baseColor='#ebedf0';
 let profileName=null;
 let totalWordLength=0;
 let wLS = window.localStorage;
-wLS.setItem('alphabet',JSON.stringify({}))
+wLS.setItem('alphabet',JSON.stringify({}));
 //-----------------------------------------------------------------------------
 window.addEventListener('load',  ()=>{
     console.log('test yuklendik...');
     let curURL = window.location.href;
     profileName = curURL.split('github.com')[1].split('/')[1];
 
+    // TODO: alphabet.js verisi wLS ye aktarilacak
+    // TODO: draw dugmesi yapistirilmis datayi tabloya aktaracak
+    // TODO: wLS deki alphabet keyleri fihrist gibi gosterilip tiklandiginda data bolmesine verisini aktaracak
+    // TODO: colorChartlar wLS ye aktarilacak, kendi cahartlarini olusturmalari saglanacak
+    // TODO: schedule edilen (reminder) noktalarin tarihlerinde uyari mesaji/email/sms gibi secenekelr olacak
+    // TODO: Animasyonlu colorchart ve colorpicker verisi olan payload da wLS ye saklanabilecek
+    // TODO: wLS export edilebilecek ve import edilebilecek
+    // TODO: nokta render fonksiyonunda color noktada varsa degilde animasyondaki color pick type oncelikli secilecek!
 
     // data boxes added
     let liClassList = "col-12 col-md-6 col-lg-6 mb-3 d-flex flex-content-stretch".split(" ");
@@ -30,7 +38,7 @@ window.addEventListener('load',  ()=>{
     boxLi.append(boxDiv);
     boxDiv.innerHTML=`<div id="dataDiv" style="width:100%">
                         <button class="btn mt-1 mb-1" type="button" id="save2LSAlphabetButton">Save2 LS Alphabet</button>
-                        <button class="btn mt-1 mb-1" type="button">Copy</button>
+                        <button class="btn mt-1 mb-1" type="button">Draw</button>
                         <br>Written Data:
                             <textarea id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></textarea></div>`;
 
