@@ -43,7 +43,8 @@ window.addEventListener('load',  ()=>{
     boxLi.append(boxDiv);
     boxDiv.innerHTML=`<div id="dataDiv" style="width:100%">
                         <button class="btn mt-1 mb-1" type="button" id="save2LSAlphabetButton">Save2 LS Alphabet</button>
-                        <button class="btn mt-1 mb-1" type="button">Draw</button>
+                        <button class="btn mt-1 mb-1" type="button" id="data2TableDrawButton">Draw</button>
+                        <input type="checkbox" id="drawAndEditButton" checked="checked">Draw&Edit
                         <br>Written Data:
                             <textarea id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></textarea></div>`;
 
@@ -112,6 +113,15 @@ window.addEventListener('load',  ()=>{
         let lsAlphabet = JSON.parse(wLS.getItem('alphabet'));
         lsAlphabet[alphabetElementName] = dataP;
         wLS.setItem('alphabet',JSON.stringify(lsAlphabet));
+    });
+
+    //data2TableDrawButton
+    document.querySelector('#data2TableDrawButton').addEventListener('click',()=>{
+        let data = JSON.parse(document.querySelector('#dataP').value);
+        if(document.querySelector('#drawAndEditButton').checked){
+            newLetterRecord = [].concat(data);
+        }
+        setter(data);
     })
 
 //--<
@@ -181,7 +191,7 @@ function setter(letter, payload){
         let yPos = datum[1];
 
         //-------------------------------------
-        if(animationStatus){//animasyon acik
+        if(animationStatus && payload){//animasyon acik
             if(payload.animate.switch){// animasyon switch true gelmis
                 if(payload.animate.animationDirection!=='Right'){// animasyon yonu saga dogruysa
                     //console.log(leftMargin);
@@ -200,7 +210,7 @@ function setter(letter, payload){
         //------------------------------------
         if(datum.length>2){
             dotColor = datum[2];
-        }else{
+        }else if(payload){
             dotColor = colorSelection({color:payload.color, order: datum[1]});
         }
             document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill", dotColor, "important");
