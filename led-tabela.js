@@ -17,45 +17,83 @@ window.addEventListener('load',  ()=>{
     console.log('test yuklendik...');
     let curURL = window.location.href;
     profileName = curURL.split('github.com')[1].split('/')[1];
-    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="letterRecordDataButton">Show Data</button>';
-    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="clearTheDataButton">Clear Data</button>';
-    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="clearTheTableButton">Clear The Table</button>';
-    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<button id="writeData2TableButton">Write Data2Table</button>';
-    document.querySelector('#letterRecordDataButton').addEventListener('click',()=>{
-        document.querySelector('div.js-yearly-contributions h2.f4').textContent= `DATA: ${JSON.stringify(newLetterRecord)}`;
-    });
-    document.querySelector('#clearTheTableButton').addEventListener('click', ()=>{
-       resetter();
-        leftPadding=0;
-    });
-    document.querySelector('#clearTheDataButton').addEventListener('click',()=>{
-        newLetterRecord=[];
-    });
-    document.querySelector('#writeData2TableButton').addEventListener('click',()=>{
-       setter(newLetterRecord,{word:'', animate:{switch:false, animationDirection: null}, color:{chartName:'defaultColors', colorPickingType: 'Lineer', set:[]}});
-    });
+
+
+    // data boxes added
+    let liClassList = "col-12 col-md-6 col-lg-6 mb-3 d-flex flex-content-stretch".split(" ");
+    let divClassList = "Box pinned-item-list-item d-flex p-3 width-full public fork text-gray".split(" ");
+    let boxContainerOl = document.querySelector('.d-flex.flex-wrap.list-style-none.gutter-condensed.mb-4');
+    let boxLi = document.createElement('li'); boxContainerOl.append(boxLi); boxLi.classList.add(...liClassList);
+    let boxDiv = document.createElement('div');  boxDiv.classList.add(...divClassList); boxDiv.id = 'dataCumulative';
+    boxLi.append(boxDiv);
+    boxDiv.innerHTML=`<div id="dataDiv" style="width:100%">
+                        <button class="btn mt-1 mb-1" type="button">Save2 LS</button>
+                        <button class="btn mt-1 mb-1" type="button">Save</button>
+                        <br>Written Data:
+                            <p id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></p></div>`;
+
+    let boxLi2 = document.createElement('li'); boxContainerOl.append(boxLi2); boxLi2.classList.add(...liClassList);
+    let boxDiv2 = document.createElement('div'); boxLi2.append(boxDiv2); boxDiv2.classList.add(...divClassList); boxDiv2.id = 'remindersList';
+    boxDiv2.innerHTML = '<div>Saved Push/Commit Reminders Schedule</div>';
+
+
+    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<select  id="processSelection"><option value="">Select a process</option></select><span style="color:red; font-weight: bold">&#8592; Pattern Creation Options</span>';
+    let processSelection = document.querySelector('#processSelection');
+    processSelection.addEventListener('change',(e)=>{processSelect(e.target.value)});
+    let clearTheDataButton = document.createElement('option'); clearTheDataButton.textContent='Clear The Data'; clearTheDataButton.value='clearTheDataButton';processSelection.append(clearTheDataButton);
+    let clearTheTableButton = document.createElement('option'); clearTheTableButton.textContent='Clear The Table'; clearTheTableButton.value='clearTheTableButton';processSelection.append(clearTheTableButton);
+    let writeData2TableButton = document.createElement('option'); writeData2TableButton.textContent='Write Data To Table'; writeData2TableButton.value='writeData2TableButton';processSelection.append(writeData2TableButton);
+
+    function processSelect(processName){
+        switch(processName){
+            case 'clearTheDataButton' :
+                newLetterRecord=[];
+                document.querySelector('#dataP').textContent= `${JSON.stringify(newLetterRecord)}`;
+                break;
+            case 'clearTheTableButton' :
+                resetter();
+                leftPadding=0;
+                break;
+            case 'writeData2TableButton' :
+                setter(newLetterRecord,{word:'', animate:{switch:false, animationDirection: null}, color:{chartName:'defaultColors', colorPickingType: 'Lineer', set:[]}});
+                break;
+            default:
+
+        }
+    }
 
     //
     rectNodeList = document.querySelectorAll('svg.js-calendar-graph-svg g > g > rect');
     rectNodeList.forEach((rectNode)=>{
+
+        rectNode.addEventListener('click',(e)=>{
+            e.target.style.setProperty("fill",'red', "important");
+        });
+
         let x=Math.floor(i/7);
         let y = i%7;
         rectNode.setAttribute("id", `ID_${x}-${y}`);
-        rectNode.addEventListener('click',()=>{newLetterRecord.push([x,y]);});
+        rectNode.addEventListener('click',()=>{
+            newLetterRecord.push([x,y]);
+            document.querySelector('#dataP').textContent= `${JSON.stringify(newLetterRecord)}`;
+        });
         xMax = x;
         yMax = y;
         i++;
     });
+
+
+
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
 
 function getColorChartData(){
-    console.log('getColorchartData cagirildi');
+    //console.log('getColorchartData cagirildi');
     let colorOptions ={};
     colorOptions.colorChartNameList = Object.keys(colorCharts);
     colorOptions.colorPickingTypeList = colorPickingTypes;
-    console.log(`colorOptions: ${JSON.stringify(colorOptions)}`);
+    //console.log(`colorOptions: ${JSON.stringify(colorOptions)}`);
     return colorOptions;
 }
 
@@ -108,8 +146,10 @@ function setter(letter, payload){
     lData.sort();
     let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
     lData.forEach((datum)=>{
+        let dotColor=baseColor;
         let xPos = datum[0]+leftPadding+leftMargin;
         let yPos = datum[1];
+
         //-------------------------------------
         if(animationStatus){//animasyon acik
             if(payload.animate.switch){// animasyon switch true gelmis
@@ -128,8 +168,12 @@ function setter(letter, payload){
 
         }
         //------------------------------------
-
-            document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill",colorSelection({color:payload.color, order: datum[1]}), "important");
+        if(datum.length>2){
+            dotColor = datum[2];
+        }else{
+            dotColor = colorSelection({color:payload.color, order: datum[1]});
+        }
+            document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill", dotColor, "important");
 
     });
     leftPadding+=letterWidth+1;
