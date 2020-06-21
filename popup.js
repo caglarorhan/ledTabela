@@ -4,7 +4,7 @@ window.addEventListener('load',()=>{
 
     // run process
     document.querySelector('#sendWordsButton').addEventListener('click',(e)=>{
-        let words = document.querySelector('#words').value.toUpperCase();
+        let words = document.querySelector('#words').value;
         let animationSwitch = document.querySelector('#animationSwitch').checked;
         //m2c({value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:true}});
         let bgColor = document.querySelector('#bgColor').value;

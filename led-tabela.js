@@ -13,7 +13,10 @@ let baseColor='#ebedf0';
 let profileName=null;
 let totalWordLength=0;
 let wLS = window.localStorage;
-wLS.setItem('alphabet',JSON.stringify({}));
+if(!wLS.getItem('alphabet')){
+    wLS.setItem('alphabet',JSON.stringify({}));
+}
+
 //-----------------------------------------------------------------------------
 window.addEventListener('load',  ()=>{
     console.log('test yuklendik...');
@@ -24,6 +27,7 @@ window.addEventListener('load',  ()=>{
     let alpha = JSON.parse(wLS.getItem('alphabet'));
     Object.keys(alphabet).forEach((key)=>{if(!alpha[key]){alpha[key]=alphabet[key];}});
     wLS.setItem('alphabet',JSON.stringify(alpha));
+
 
     // TODO: draw dugmesi yapistirilmis datayi tabloya aktaracak
 
@@ -45,12 +49,15 @@ window.addEventListener('load',  ()=>{
                         <button class="btn mt-1 mb-1" type="button" id="save2LSAlphabetButton">Save2 LS Alphabet</button>
                         <button class="btn mt-1 mb-1" type="button" id="data2TableDrawButton">Draw</button>
                         <input type="checkbox" id="drawAndEditButton" checked="checked">Draw&Edit
-                        <br>Written Data:
+                        <br>Written Data:<span id="keyNameFromAlphabet"></span>
                             <textarea id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></textarea></div>`;
 
     let boxLi2 = document.createElement('li'); boxContainerOl.append(boxLi2); boxLi2.classList.add(...liClassList);
     let boxDiv2 = document.createElement('div'); boxLi2.append(boxDiv2); boxDiv2.classList.add(...divClassList); boxDiv2.id = 'remindersList';
-    boxDiv2.innerHTML = '<div>Saved Push/Commit Reminders Schedule</div>';
+    boxDiv2.innerHTML = `<div>Saved Push/Commit Reminders Schedule
+                        <input type="text" placeholder="Search alphabet" id="searchTextAlphabet" class="ml-2 form-control flex-auto input-sm">
+                        <div style="width:100%; height: 150px"><ul class="filter-list small" id="searchAlphabetResults"></ul></div>
+                        </div>`;
 
 
     document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<select  id="processSelection"><option value="">Select a process</option></select><span style="color:red; font-weight: bold">&#8592; Pattern Creation Options</span><span style="margin-left: 10px;"><input type="color" value="#ff0000" id="selectedColor"> </span>';
@@ -111,8 +118,9 @@ window.addEventListener('load',  ()=>{
         let alphabetElementName = prompt('Please write a name for your data to insert into your local storage alphabet.');
         let dataP = document.querySelector('#dataP').value;
         let lsAlphabet = JSON.parse(wLS.getItem('alphabet'));
-        lsAlphabet[alphabetElementName] = dataP;
+        lsAlphabet[alphabetElementName] = JSON.parse(dataP);
         wLS.setItem('alphabet',JSON.stringify(lsAlphabet));
+        console.log(wLS.getItem('alphabet'));
     });
 
     //data2TableDrawButton
@@ -122,7 +130,20 @@ window.addEventListener('load',  ()=>{
             newLetterRecord = [].concat(data);
         }
         setter(data);
-    })
+    });
+
+    //searchTextAlphabet
+    document.querySelector('#searchTextAlphabet').addEventListener('input',(e)=>{
+        let lsAlphabet = Object.keys(JSON.parse(wLS.getItem('alphabet')));
+        document.querySelector('#searchAlphabetResults').innerHTML='';
+        lsAlphabet.forEach((key)=>{
+            if(key.indexOf(e.target.value)>-1){
+               document.querySelector('#searchAlphabetResults').innerHTML+=`<li><a class="filter-item px-3 mb-2 py-2" data-key="${key}">${key}</a></li>`;
+            }
+        })
+    });
+
+
 
 //--<
 });
@@ -181,11 +202,11 @@ function resetter(){
 }
 
 function setter(letter, payload){
-    let lData = typeof letter==='string'? alphabet[letter]: letter;
+    let lData = typeof letter==='string'? wLS.getItem('alphabet')[letter]: letter;
     //console.log(`leftMargin:${leftMargin}`);
-    lData.sort();
-    let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
+    console.log(letter);
     lData.forEach((datum)=>{
+        console.log(datum);
         let dotColor=baseColor;
         let xPos = datum[0]+leftPadding+leftMargin;
         let yPos = datum[1];
@@ -216,25 +237,36 @@ function setter(letter, payload){
             document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill", dotColor, "important");
 
     });
+    lData.sort();
+    let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
     leftPadding+=letterWidth+1;
 }
 
 
 function writer(payload){
+    let letters = [];
     animationStatus=true;
     baseColor = payload.color.bgColor;
     resetter();
     leftPadding=0;
     leftMargin=0;
     totalWordLength=0;
-    let letters = payload.word.split('');
+    console.log(`Gelen payload word: ${payload.word}`);
+    console.log(wLS.getItem('alphabet'));
+    console.log(wLS.getItem('alphabet')[payload.word]);
+    if(wLS.getItem('alphabet')[payload.word]){
+        letters = wLS.getItem('alphabet')[payload.word]
+    }else{
+        letters = payload.word.split('');
+    }
+
     animationDirection = payload.animate.animationDirection;
 
 
     let lettersLength = letters.length;
     letters.forEach((letter)=>{
-        if(alphabet[letter]){
-            let orderedLetterData = alphabet[letter].sort();
+        if(wLS.getItem('alphabet')[letter]){
+            let orderedLetterData = wLS.getItem('alphabet')[letter].sort();
             let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
            // console.log(`${letter}:${letterLength}`);
             totalWordLength+= letterLength;
@@ -301,7 +333,7 @@ chrome.runtime.onMessage.addListener(  async (request)=>{
                 results = await window[request.value]();
             }
             if(request.callBack && request.callBack.callBackName){
-                console.log(`result gonderilecek: ${results}`)
+                console.log(`result gonderilecek: ${results}`);
                 m2p({value:request.callBack.callBackName, action:'runRequest',payload: results,})
             }
 
