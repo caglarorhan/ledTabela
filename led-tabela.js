@@ -72,6 +72,7 @@ window.addEventListener('load',  ()=>{
             case 'clearTheDataButton' :
                 newLetterRecord=[];
                 document.querySelector('#dataP').value= `${JSON.stringify(newLetterRecord)}`;
+                document.getElementById('keyNameFromAlphabet').textContent='';
                 break;
             case 'clearTheTableButton' :
                 resetter();
@@ -151,10 +152,7 @@ window.addEventListener('load',  ()=>{
        document.querySelectorAll('#searchAlphabetResults li a').forEach((aElm)=>{
            aElm.addEventListener('click',(e)=>{
                let key = e.target.dataset['key'];
-               console.log(key);
-               let lsAlphabet = JSON.parse(wLS.getItem('alphabet'));
-               console.log(lsAlphabet[key]);
-               document.getElementById('dataP').value = JSON.stringify(lsAlphabet[key]);
+               document.getElementById('dataP').value = JSON.stringify(wLSa(key));
                 document.getElementById('keyNameFromAlphabet').textContent=e.target.dataset['key'];
            })
        })
@@ -164,12 +162,14 @@ window.addEventListener('load',  ()=>{
     });
 
 
-
-
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
-
+function wLSa(key) { // get data from alphabet in the localstorage with a key
+    let lsAlphabet = JSON.parse(wLS.getItem('alphabet'));
+    if(!lsAlphabet.hasOwnProperty(key)){return false}
+    return JSON.parse(JSON.stringify(lsAlphabet[key]));
+}
 
 function getColorChartData(){
     //console.log('getColorchartData cagirildi');
@@ -223,11 +223,9 @@ function resetter(){
     })
 }
 
-function setter(letter, payload){
-    let lData = typeof letter==='string'? wLS.getItem('alphabet')[letter]: letter;
-    //console.log(`leftMargin:${leftMargin}`);
-    console.log(letter);
-    lData.forEach((datum)=>{
+function setter(letterData, payload){
+    console.log(`setter fonksiyonuna gelen letterdata: ${letterData}`);
+    letterData.forEach((datum)=>{
         console.log(datum);
         let dotColor=baseColor;
         let xPos = datum[0]+leftPadding+leftMargin;
@@ -259,8 +257,8 @@ function setter(letter, payload){
             document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill", dotColor, "important");
 
     });
-    lData.sort();
-    let letterWidth = lData[lData.length-1][0]-lData[0][0]+1;
+    letterData.sort();
+    let letterWidth = letterData[letterData.length-1][0]-letterData[0][0]+1;
     leftPadding+=letterWidth+1;
 }
 
@@ -273,31 +271,30 @@ function writer(payload){
     leftPadding=0;
     leftMargin=0;
     totalWordLength=0;
-    console.log(`Gelen payload word: ${payload.word}`);
-    console.log(wLS.getItem('alphabet'));
-    console.log(wLS.getItem('alphabet')[payload.word]);
-    if(wLS.getItem('alphabet')[payload.word]){
-        letters = wLS.getItem('alphabet')[payload.word]
-    }else{
+
+    if(!wLSa(payload.word)){
+        console.log('Bu bir harfler butunudur')
         letters = payload.word.split('');
+    }else{
+        console.log('Bu bir tumlesik kelimedir')
+        letters= wLSa(payload.word);
     }
 
     animationDirection = payload.animate.animationDirection;
 
+    if(!wLSa(payload.word)){
+        let lettersLength = letters.length;
+        letters.forEach((letter)=>{
+            if(wLSa(letter)){
+                let orderedLetterData = wLSa(letter).sort();
+                let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
+                // console.log(`${letter}:${letterLength}`);
+                totalWordLength+= letterLength;
+            }
+        }) ;
+        totalWordLength+= ((lettersLength-1)*interLetterSpace); // added spaces
+    }
 
-    let lettersLength = letters.length;
-    letters.forEach((letter)=>{
-        if(wLS.getItem('alphabet')[letter]){
-            let orderedLetterData = wLS.getItem('alphabet')[letter].sort();
-            let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
-           // console.log(`${letter}:${letterLength}`);
-            totalWordLength+= letterLength;
-        }
-    }) ;
-    totalWordLength+= ((lettersLength-1)*interLetterSpace); // added spaces
-
-    //console.log(`totalwordlength:${totalWordLength}`);
-    //console.log(`xMax:${xMax}`);
     if(totalWordLength>xMax-1){
         m2p({value:`Word ${payload.word} length is too long, shorten your word and try again!`});
         console.log(`Word ${payload.word} length is too long, shorten your word and try again!`);
@@ -315,9 +312,15 @@ function writer(payload){
                 resetter();
                 //console.log(animationStatus);
                 if(animationStatus!==true){clearTimeout(animationTimer); return false;}
-                letters.forEach((letter)=>{
-                    setter(letter, payload);
-                });
+                if(!wLSa(payload.word)){
+                    letters.forEach((letter)=>{
+                        let letterData = wLSa(letter);
+                        setter(letterData, payload);
+                    });
+                }else{
+                    setter(letters, payload); //whole word data from alphabet
+                }
+
                 animationDirection==='Right'?leftMargin++:leftMargin--;
                 leftPadding=0;
                 clearTimeout(animationTimer);
@@ -329,9 +332,16 @@ function writer(payload){
 
 
     }else{
-        letters.forEach((letter)=>{
-            setter(letter,payload);
-        })
+        if(!wLSa(payload.word)){
+            letters.forEach((letter)=>{
+                let letterData = wLSa(letter);
+                setter(letterData,payload);
+            })
+        }else{
+            console.log(letters);
+            setter(letters, payload); //whole word data from alphabet
+        }
+
     }
 }
 
