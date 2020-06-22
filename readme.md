@@ -56,7 +56,7 @@ Like other browser extensions do, Led Table injects a js file and run some scrip
 
 
  
-####TODOS (in Turkish) -dd: done and dust
+#### TODOS (in Turkish) -dd: done and dust
 
     // dd TODO: draw dugmesi yapistirilmis datayi tabloya aktaracak
     // dd TODO: wLS deki alphabet keyleri fihrist gibi gosterilip tiklandiginda data bolmesine verisini aktaracak
