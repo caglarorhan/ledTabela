@@ -120,6 +120,7 @@ window.addEventListener('load',  ()=>{
         let lsAlphabet = JSON.parse(wLS.getItem('alphabet'));
         lsAlphabet[alphabetElementName] = JSON.parse(dataP);
         wLS.setItem('alphabet',JSON.stringify(lsAlphabet));
+        document.getElementById('keyNameFromAlphabet').textContent = alphabetElementName;
         console.log(wLS.getItem('alphabet'));
     });
 
@@ -133,21 +134,42 @@ window.addEventListener('load',  ()=>{
     });
 
     //searchTextAlphabet
-    document.querySelector('#searchTextAlphabet').addEventListener('input',(e)=>{
+    document.querySelector('#searchTextAlphabet').addEventListener('input',async (e)=>{
         let lsAlphabet = Object.keys(JSON.parse(wLS.getItem('alphabet')));
         document.querySelector('#searchAlphabetResults').innerHTML='';
-        lsAlphabet.forEach((key)=>{
-            if(key.indexOf(e.target.value)>-1){
-               document.querySelector('#searchAlphabetResults').innerHTML+=`<li><a class="filter-item px-3 mb-2 py-2" data-key="${key}">${key}</a></li>`;
-            }
-        })
+
+       await (()=>{
+           for(let ix=0; ix<lsAlphabet.length;ix++){
+               let key = lsAlphabet[ix];
+               if(key.indexOf(e.target.value)>-1){
+                   document.querySelector('#searchAlphabetResults').innerHTML+=`<li><a class="filter-item px-3 mb-2 py-2" data-key="${key}">${key}</a></li>`;
+                   console.log('once bunlar bitecek')
+               }
+           }
+       })();
+
+       document.querySelectorAll('#searchAlphabetResults li a').forEach((aElm)=>{
+           aElm.addEventListener('click',(e)=>{
+               let key = e.target.dataset['key'];
+               console.log(key);
+               let lsAlphabet = JSON.parse(wLS.getItem('alphabet'));
+               console.log(lsAlphabet[key]);
+               document.getElementById('dataP').value = JSON.stringify(lsAlphabet[key]);
+                document.getElementById('keyNameFromAlphabet').textContent=e.target.dataset['key'];
+           })
+       })
+
+
+
     });
+
 
 
 
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
+
 
 function getColorChartData(){
     //console.log('getColorchartData cagirildi');
