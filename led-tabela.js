@@ -161,7 +161,9 @@ window.addEventListener('load',  ()=>{
 
     });
 
-
+    console.log(wLSa('roket'));
+    console.log(wLSa('abcdefg'));
+    console.log('Ilk testler basarili ---------------------------------------');
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
@@ -224,7 +226,7 @@ function resetter(){
 }
 
 function setter(letterData, payload){
-    console.log(`setter fonksiyonuna gelen letterdata: ${letterData}`);
+    console.log(`setter fonksiyonuna gelen letterdata: ${JSON.stringify(letterData)}`);
     letterData.forEach((datum)=>{
         console.log(datum);
         let dotColor=baseColor;
@@ -271,25 +273,34 @@ function writer(payload){
     leftPadding=0;
     leftMargin=0;
     totalWordLength=0;
-
-    if(!wLSa(payload.word)){
-        console.log('Bu bir harfler butunudur')
+    if(payload && !payload.word){m2p({value:'Please give some input to render!'}); return false;}
+    console.log(`Payload icinde gonderilen metin: ${payload.word} dir.`);
+    let isWord = wLSa(payload.word); //  false veya dogrudan data doner, false demek bu aranan kelime alphabet de yok demektir
+    console.log(`${payload.word} kelimesi alphabette var mi: ${isWord}`);
+    console.log('----------------------------------------');
+    if(!isWord){
+        console.log('Bu bir harfler kumesidir');
         letters = payload.word.split('');
     }else{
-        console.log('Bu bir tumlesik kelimedir')
+        console.log('Bu bir tumlesik kelimedir');
         letters= wLSa(payload.word);
     }
 
     animationDirection = payload.animate.animationDirection;
 
-    if(!wLSa(payload.word)){
+    if(!isWord){
         let lettersLength = letters.length;
         letters.forEach((letter)=>{
             if(wLSa(letter)){
+                console.log(letter);
+                console.log(Array.isArray(wLSa(letter)));
                 let orderedLetterData = wLSa(letter).sort();
+                console.log(`Ordered data:${JSON.stringify(orderedLetterData)}`);
                 let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
                 // console.log(`${letter}:${letterLength}`);
                 totalWordLength+= letterLength;
+            }else{
+                return;
             }
         }) ;
         totalWordLength+= ((lettersLength-1)*interLetterSpace); // added spaces
@@ -312,10 +323,11 @@ function writer(payload){
                 resetter();
                 //console.log(animationStatus);
                 if(animationStatus!==true){clearTimeout(animationTimer); return false;}
-                if(!wLSa(payload.word)){
+                if(!isWord){
                     letters.forEach((letter)=>{
-                        let letterData = wLSa(letter);
-                        setter(letterData, payload);
+                        if(!wLSa(letter)){return false;}
+                            let letterData = wLSa(letter);
+                            setter(letterData, payload);
                     });
                 }else{
                     setter(letters, payload); //whole word data from alphabet
@@ -332,8 +344,9 @@ function writer(payload){
 
 
     }else{
-        if(!wLSa(payload.word)){
+        if(!isWord){
             letters.forEach((letter)=>{
+                if(!wLSa(letter)){return false;}
                 let letterData = wLSa(letter);
                 setter(letterData,payload);
             })
