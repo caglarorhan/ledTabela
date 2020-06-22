@@ -30,13 +30,13 @@ window.addEventListener('load',  ()=>{
 
 
     // TODO: draw dugmesi yapistirilmis datayi tabloya aktaracak
-
     // TODO: wLS deki alphabet keyleri fihrist gibi gosterilip tiklandiginda data bolmesine verisini aktaracak
     // TODO: colorChartlar wLS ye aktarilacak, kendi cahartlarini olusturmalari saglanacak
     // TODO: schedule edilen (reminder) noktalarin tarihlerinde uyari mesaji/email/sms gibi secenekelr olacak
     // TODO: Animasyonlu colorchart ve colorpicker verisi olan payload da wLS ye saklanabilecek
     // TODO: wLS export edilebilecek ve import edilebilecek
     // TODO: nokta render fonksiyonunda color noktada varsa degilde animasyondaki color pick type oncelikli secilecek!
+
 
     // data boxes added
     let liClassList = "col-12 col-md-6 col-lg-6 mb-3 d-flex flex-content-stretch".split(" ");

@@ -3,6 +3,7 @@
 1. Installing and Usage
 1. Working Logic
 1. Project File Structure
+1. TODOs
 1. Licence
 
 
@@ -52,7 +53,17 @@ Like other browser extensions do, Led Table injects a js file and run some scrip
 - **popup.js** loaded from browser itself when extension icon clicked
 - **led-tabela.js** injected into loaded/rendered GitHub html page. 
 - **readme.md** this readme file.
+
+
  
+####TODOS (in Turkish) -dd: done and dust
+    // dd TODO: draw dugmesi yapistirilmis datayi tabloya aktaracak
+    // dd TODO: wLS deki alphabet keyleri fihrist gibi gosterilip tiklandiginda data bolmesine verisini aktaracak
+    // TODO: colorChartlar wLS ye aktarilacak, kendi cahartlarini olusturmalari saglanacak
+    // TODO: schedule edilen (reminder) noktalarin tarihlerinde uyari mesaji/email/sms gibi secenekelr olacak, boylece kullanici yil icinde herhangi bir tarih araliginda yazi gibi gorunmesini istedigi alanda uyarilar alarak commit push edip yaziyi olusturabilecek
+    // TODO: Animasyonlu colorchart ve colorpicker verisi olan payload da wLS ye saklanabilecek
+    // TODO: wLS export edilebilecek ve import edilebilecek
+    // dd TODO: nokta render fonksiyonunda color noktada varsa degilde animasyondaki color pick type oncelikli secilecek!
 
 #### Licence
 
