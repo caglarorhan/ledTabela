@@ -66,6 +66,8 @@ window.addEventListener('load',  ()=>{
     let clearTheDataButton = document.createElement('option'); clearTheDataButton.textContent='Clear The Data'; clearTheDataButton.value='clearTheDataButton';processSelection.append(clearTheDataButton);
     let clearTheTableButton = document.createElement('option'); clearTheTableButton.textContent='Clear The Table'; clearTheTableButton.value='clearTheTableButton';processSelection.append(clearTheTableButton);
     let writeData2TableButton = document.createElement('option'); writeData2TableButton.textContent='Write Data To Table'; writeData2TableButton.value='writeData2TableButton';processSelection.append(writeData2TableButton);
+    let paintBGButton = document.createElement('option'); paintBGButton.textContent='Paint Table BG'; paintBGButton.value='paintBGButton'; processSelection.append(paintBGButton);
+
 
     function processSelect(processName){
         switch(processName){
@@ -80,6 +82,9 @@ window.addEventListener('load',  ()=>{
                 break;
             case 'writeData2TableButton' :
                 setter(newLetterRecord,{});
+                break;
+            case 'paintBGButton':
+                bgColorPainter();
                 break;
             default:
 
@@ -104,15 +109,6 @@ window.addEventListener('load',  ()=>{
         yMax = y;
         i++;
     });
-
-    //TODO: Selecting original github contribution colors
-// default colors (contribution colors) to color selector
-//     let liler = document.querySelectorAll('.legend li');
-//     liler.forEach((i)=>{
-//         i.addEventListener('click',(e)=>{
-//             document.querySelector('#selectedColor').value=e.target.style.backgroundColor;
-//         })
-//     })
 
 //save2LSAlphabetButton
     document.querySelector('#save2LSAlphabetButton').addEventListener('click',()=>{
@@ -160,10 +156,18 @@ window.addEventListener('load',  ()=>{
 
 
     });
+// github colors
+    let gitHubColors = ['#EBEDF0','#9BE9A8','#40C463','#30A14E','#216E39'];
+    document.querySelectorAll('ul.legend li').forEach((oLi,oIndex)=>{
+        oLi.setAttribute('data-color',gitHubColors[oIndex]);
+        oLi.style.cursor='pointer';
+        oLi.title='Click to pick that color';
+        oLi.addEventListener('click',(e)=>{
+            document.getElementById('selectedColor').value = e.target.dataset['color'];
+        })
+    })
 
-    console.log(wLSa('roket'));
-    console.log(wLSa('abcdefg'));
-    console.log('Ilk testler basarili ---------------------------------------');
+
 //--<
 });
 //-------------------------------------------------------------------------------------------------------------------
@@ -274,15 +278,15 @@ function writer(payload){
     leftMargin=0;
     totalWordLength=0;
     if(payload && !payload.word){m2p({value:'Please give some input to render!'}); return false;}
-    console.log(`Payload icinde gonderilen metin: ${payload.word} dir.`);
+    //console.log(`Payload icinde gonderilen metin: ${payload.word} dir.`);
     let isWord = wLSa(payload.word); //  false veya dogrudan data doner, false demek bu aranan kelime alphabet de yok demektir
-    console.log(`${payload.word} kelimesi alphabette var mi: ${isWord}`);
-    console.log('----------------------------------------');
+    //console.log(`${payload.word} kelimesi alphabette var mi: ${isWord}`);
+    //console.log('----------------------------------------');
     if(!isWord){
-        console.log('Bu bir harfler kumesidir');
+        //console.log('Bu bir harfler kumesidir');
         letters = payload.word.split('');
     }else{
-        console.log('Bu bir tumlesik kelimedir');
+        //console.log('Bu bir tumlesik kelimedir');
         letters= wLSa(payload.word);
     }
 
@@ -292,10 +296,10 @@ function writer(payload){
         let lettersLength = letters.length;
         letters.forEach((letter)=>{
             if(wLSa(letter)){
-                console.log(letter);
-                console.log(Array.isArray(wLSa(letter)));
+                //console.log(letter);
+                //console.log(Array.isArray(wLSa(letter)));
                 let orderedLetterData = wLSa(letter).sort();
-                console.log(`Ordered data:${JSON.stringify(orderedLetterData)}`);
+                //console.log(`Ordered data:${JSON.stringify(orderedLetterData)}`);
                 let letterLength = orderedLetterData[orderedLetterData.length-1][0]-orderedLetterData[0][0]+1;
                 // console.log(`${letter}:${letterLength}`);
                 totalWordLength+= letterLength;
@@ -356,6 +360,17 @@ function writer(payload){
         }
 
     }
+}
+
+function bgColorPainter(payload){
+    if(payload){
+        document.getElementById('selectedColor').value = payload.color;
+    }
+    rectNodeList = document.querySelectorAll('svg.js-calendar-graph-svg g > g > rect');
+    rectNodeList.forEach((rectNode)=> {
+        let selectedColor = document.querySelector('#selectedColor').value;
+        rectNode.style.setProperty("fill", selectedColor, "important");
+    })
 }
 
 

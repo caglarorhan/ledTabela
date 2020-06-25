@@ -44,6 +44,10 @@ window.addEventListener('load',()=>{
        m2c({value:'animationModifier', action:'runRequest', payload:{baseColor:e.target.value}})
     })
 
+    //paintBGNowButton - bgColor painter
+    document.querySelector('#paintBGNowButton').addEventListener('click',()=>{
+        m2c({value:'bgColorPainter', action:'runRequest', payload:{color:document.getElementById('bgColor').value}});
+    })
 
     //--<
 });

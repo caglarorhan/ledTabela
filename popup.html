@@ -24,13 +24,13 @@
         <div class="">
             Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?"><br>
             bgcolor:
-            <input type="color" value="#ebedf0" id="bgColor">
+            <input type="color" value="#ebedf0" id="bgColor"><button type="button" id="paintBGNowButton">Paint BG Now</button>
             <br>
             To the left<input type="radio" name="direction" id="animationDirection2Left" value="left" checked="checked">
             <input type="radio" name="direction" id="animationDirection2Right" value="right"> To the Right
             <br>
-            <input type="range" class="itrs" id="animationSpeed" min="0" max="5000" value="500" step="100" data-sync-to="animationSpeedData" data-two-way-bind="true">
-            <input type="text" id="animationSpeedData" size="4" value="500">
+            <input type="range" class="itrs" id="animationSpeed" min="10" max="1000" value="300" step="10" data-sync-to="animationSpeedData" data-two-way-bind="true">
+            <input type="text" id="animationSpeedData" size="4" value="300">
             <p style="margin-top:30px">
                 <button class="button" id="resetButton" style="float:left">RESET</button>
                 <button class="button" id="sendWordsButton" style="float:right">RUN</button>
