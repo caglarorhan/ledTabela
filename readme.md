@@ -40,7 +40,7 @@ Like other browser extensions do, Led Table injects a js file and run some scrip
         i++;
         });
     ```
-  There is also a mini tool to create date from rectangle click. Also, some of events added to these rectangles.
+  There is also a mini tool to create datum from rectangle click. Also, some of events added to these rectangles. This tool injected and seen on the page just top of the contribution table.
   
   - We are using two main functions. **writer** and **setter**. writer send words letters to setter, and setter paint the rectangles (from the x:y data). I any animation requested this function adjusts x data of the letters point data. The function adjust this positioning property with two variables **leftMargin** and **leftPadding**. Leftmargin calculated with animation process, left padding is calculated with previous letters width and interletterspace amount. 
 

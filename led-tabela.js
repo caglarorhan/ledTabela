@@ -56,7 +56,7 @@ window.addEventListener('load',  ()=>{
     let boxDiv2 = document.createElement('div'); boxLi2.append(boxDiv2); boxDiv2.classList.add(...divClassList); boxDiv2.id = 'remindersList';
     boxDiv2.innerHTML = `<div>Saved Push/Commit Reminders Schedule
                         <input type="text" placeholder="Search alphabet" id="searchTextAlphabet" class="ml-2 form-control flex-auto input-sm">
-                        <div style="width:100%; height: 150px"><ul class="filter-list small" id="searchAlphabetResults"></ul></div>
+                        <div style="width:100%; height: 150px; overflow-y: auto;"><ul class="filter-list small" id="searchAlphabetResults"></ul></div>
                         </div>`;
 
 
@@ -140,7 +140,7 @@ window.addEventListener('load',  ()=>{
                let key = lsAlphabet[ix];
                if(key.indexOf(e.target.value)>-1){
                    document.querySelector('#searchAlphabetResults').innerHTML+=`<li><a class="filter-item px-3 mb-2 py-2" data-key="${key}">${key}</a></li>`;
-                   console.log('once bunlar bitecek')
+                   //console.log('once bunlar bitecek')
                }
            }
        })();
@@ -230,9 +230,9 @@ function resetter(){
 }
 
 function setter(letterData, payload){
-    console.log(`setter fonksiyonuna gelen letterdata: ${JSON.stringify(letterData)}`);
+    //console.log(`setter fonksiyonuna gelen letterdata: ${JSON.stringify(letterData)}`);
     letterData.forEach((datum)=>{
-        console.log(datum);
+        //console.log(datum);
         let dotColor=baseColor;
         let xPos = datum[0]+leftPadding+leftMargin;
         let yPos = datum[1];
@@ -355,7 +355,7 @@ function writer(payload){
                 setter(letterData,payload);
             })
         }else{
-            console.log(letters);
+            //console.log(letters);
             setter(letters, payload); //whole word data from alphabet
         }
 
@@ -393,7 +393,7 @@ chrome.runtime.onMessage.addListener(  async (request)=>{
                 results = await window[request.value]();
             }
             if(request.callBack && request.callBack.callBackName){
-                console.log(`result gonderilecek: ${results}`);
+                //console.log(`result gonderilecek: ${results}`);
                 m2p({value:request.callBack.callBackName, action:'runRequest',payload: results,})
             }
 
