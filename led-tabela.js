@@ -9,6 +9,7 @@ let animationDirection = 'Right';
 let animationSpeed = 500;
 let rectNodeList=null;
 let animationStatus=true;
+let animationTimer=null;
 let baseColor='#ebedf0';
 let profileName=null;
 let totalWordLength=0;
@@ -450,6 +451,141 @@ function resetProcess(){
     });
 }
 
+function discoBall(){
+    console.log('discoBall function called!');
+    
+    try {
+        // Reset first
+        resetProcess();
+        animationStatus = true;
+        
+        // Get all cells
+        rectNodeList = document.querySelectorAll('td.ContributionCalendar-day');
+        const cellsArray = Array.from(rectNodeList);
+        
+        if(cellsArray.length === 0) {
+            console.error('No cells found!');
+            return false;
+        }
+        
+        console.log(`Found ${cellsArray.length} cells, xMax: ${xMax}, yMax: ${yMax}`);
+        
+        // Calculate center of the chart
+        const centerX = Math.floor(xMax / 2);
+        const centerY = Math.floor(yMax / 2);
+        
+        console.log(`Disco ball center: (${centerX}, ${centerY})`);
+    
+    // Disco colors palette - mirror ball facets
+    const discoColors = [
+        '#FFD700', '#FFFFFF', '#C0C0C0', '#FFE4B5', '#F0E68C',
+        '#FAFAD2', '#FFFACD', '#E6E6FA', '#FFF8DC', '#F5F5DC'
+    ];
+    
+    let rotation = 0;
+    const discoBallRadius = 4;
+    const maxDistance = Math.sqrt(xMax * xMax + yMax * yMax) / 2;
+    
+    const animate = () => {
+        if(!animationStatus) return;
+        
+        rotation += 0.15;
+        
+        // Calculate lighting for each cell based on disco ball rotation
+        cellsArray.forEach((cell, index) => {
+            const x = index % (xMax + 1);
+            const y = Math.floor(index / (xMax + 1));
+            
+            // Distance from center (disco ball position)
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Angle from disco ball to this cell
+            const angle = Math.atan2(dy, dx);
+            
+            // Disco ball itself - make it look spherical with shading
+            if(distance <= discoBallRadius) {
+                // Create sphere illusion with gradient from center
+                const sphereDepth = 1 - (distance / discoBallRadius);
+                
+                // Create rotating mirror facets
+                const facetPattern = Math.floor((angle + rotation) * 8) % 2;
+                const rotationShine = (Math.sin(rotation * 4 + angle * 6) + 1) / 2;
+                
+                // Mix of metallic colors based on facet
+                const baseColor = facetPattern === 0 ? 
+                    (rotationShine > 0.5 ? '#FFFFFF' : '#FFD700') : 
+                    (rotationShine > 0.5 ? '#E6E6FA' : '#C0C0C0');
+                
+                // Add depth shading
+                const r = parseInt(baseColor.slice(1, 3), 16);
+                const g = parseInt(baseColor.slice(3, 5), 16);
+                const b = parseInt(baseColor.slice(5, 7), 16);
+                
+                const shadedR = Math.floor(r * (0.3 + sphereDepth * 0.7));
+                const shadedG = Math.floor(g * (0.3 + sphereDepth * 0.7));
+                const shadedB = Math.floor(b * (0.3 + sphereDepth * 0.7));
+                
+                cell.style.setProperty("background-color", 
+                    `rgb(${shadedR}, ${shadedG}, ${shadedB})`, "important");
+            } else {
+                // Light beams projecting from disco ball
+                const normalizedDistance = distance / maxDistance;
+                
+                // Create rotating beam pattern (8 main beams)
+                const beamAngle = (angle + rotation * 2) % (Math.PI * 2);
+                const beamPattern = Math.abs(Math.sin(beamAngle * 4));
+                
+                // Pulsing effect
+                const pulse = (Math.sin(rotation * 3) + 1) / 2;
+                
+                // Calculate beam intensity
+                const beamIntensity = beamPattern * (1 - normalizedDistance) * (0.5 + pulse * 0.5);
+                
+                if(beamIntensity > 0.15) {
+                    // Determine beam color based on angle
+                    const colorCycle = ((angle + rotation) % (Math.PI * 2)) / (Math.PI * 2);
+                    const colorIndex = Math.floor(colorCycle * 6);
+                    
+                    // Vibrant beam colors
+                    const beamColors = [
+                        '#FF0080', '#FF00FF', '#8000FF', 
+                        '#0080FF', '#00FFFF', '#00FF80'
+                    ];
+                    
+                    const safeColorIndex = Math.abs(colorIndex) % beamColors.length;
+                    const beamColor = beamColors[safeColorIndex];
+                    
+                    if(beamColor && beamColor.length === 7) {
+                        const r = parseInt(beamColor.slice(1, 3), 16);
+                        const g = parseInt(beamColor.slice(3, 5), 16);
+                        const b = parseInt(beamColor.slice(5, 7), 16);
+                        
+                        cell.style.setProperty("background-color", 
+                            `rgba(${r}, ${g}, ${b}, ${Math.min(0.9, beamIntensity * 2)})`, "important");
+                    } else {
+                        cell.style.setProperty("background-color", "#FF00FF", "important");
+                    }
+                } else {
+                    // Dark background
+                    cell.style.setProperty("background-color", "#0a0a1a", "important");
+                }
+            }
+        });
+        
+        animationTimer = setTimeout(animate, animationSpeed);
+    };
+    
+    animate();
+    return true;
+    
+    } catch(error) {
+        console.error('Disco ball error:', error);
+        return false;
+    }
+}
+
 function resetter(){
     rectNodeList = document.querySelectorAll('td.ContributionCalendar-day');
     rectNodeList.forEach((rectNode)=>{
@@ -513,6 +649,10 @@ function setter(letterData, payload){
 function writer(payload){
     console.log('Writer called with payload:', payload);
     console.log(`Current xMax: ${xMax}, yMax: ${yMax}`);
+    
+    // Reset chart and animations before starting new one
+    resetProcess();
+    
     let letters = [];
     animationStatus=true;
     baseColor = payload.color.bgColor;
@@ -540,6 +680,7 @@ function writer(payload){
     }
 
     animationDirection = payload.animate.animationDirection;
+    if(payload.animate.animationSpeed){animationSpeed = parseInt(payload.animate.animationSpeed);}
 
     if(!isWord){
         let lettersLength = letters.length;
@@ -610,7 +751,7 @@ function writer(payload){
     if(payload.animate.switch===true && animationStatus){
 
         let animateIt = ()=>{
-            let animationTimer = window.setTimeout(()=>{
+            animationTimer = window.setTimeout(()=>{
                 resetter();
                 //console.log(animationStatus);
                 if(animationStatus!==true){clearTimeout(animationTimer); return false;}
@@ -758,22 +899,31 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse)=>{
             return true;
             
         case 'runRequest':
-            let results={};
-            if(typeof request.payload ==='object' && request.payload.constructor===Object && Object.keys(request.payload).length>0){
-                results = await window[request.value](request.payload);
-            }else{
-                results = await window[request.value]();
-            }
-            if(request.callBack && request.callBack.callBackName){
-                //console.log(`result gonderilecek: ${results}`);
-                m2p({value:request.callBack.callBackName, action:'runRequest',payload: results,})
-            }
+            // Send response immediately and run function asynchronously
+            sendResponse({received: true, success: true});
+            
+            // Run the function without blocking
+            (async () => {
+                try {
+                    let results = {};
+                    if(typeof request.payload === 'object' && request.payload.constructor === Object && Object.keys(request.payload).length > 0){
+                        results = await window[request.value](request.payload);
+                    } else {
+                        results = await window[request.value]();
+                    }
+                    if(request.callBack && request.callBack.callBackName){
+                        m2p({value:request.callBack.callBackName, action:'runRequest', payload: results})
+                    }
+                } catch(error) {
+                    console.error('Function execution error:', error);
+                }
+            })();
+            
+            return true;
 
-            break;
         default:
             console.log(request.value);
-            break;
+            sendResponse({received: true});
+            return true;
     }
-    sendResponse({received: true});
-    return true;
 });

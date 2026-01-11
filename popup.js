@@ -37,6 +37,10 @@ async function loadSettings() {
 }
 
 window.addEventListener('load',()=>{
+    // Load version from manifest
+    const manifestData = chrome.runtime.getManifest();
+    document.getElementById('versionNumber').textContent = `v${manifestData.version}`;
+    
     // Check if current tab is a GitHub profile page
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         if (tabs[0]) {
@@ -52,7 +56,11 @@ window.addEventListener('load',()=>{
     
     // colorChart and picking type selections
     // Try to get from content script first
-    m2c({value:'getColorChartData', action:'runRequest', callBack: {callBackName: 'setColorSelectionOptions', echo:true}});
+    m2c({value:'getColorChartData', action:'runRequest', callBack: {callBackName: 'setColorSelectionOptions', echo:true}}, (success) => {
+        if (!success) {
+            console.log('Could not get color chart data from content script, using local fallback');
+        }
+    });
     
     // Load saved patterns into dropdown
     loadSavedPatterns();
@@ -213,6 +221,8 @@ window.addEventListener('load',()=>{
         let animationDirection='Left';
         if(document.querySelector('#animationDirection2Right').checked){animationDirection='Right'}
         
+        let animationSpeed = parseInt(document.querySelector('#animationSpeed').value);
+        
         // Validate colors - get first color from selected chart
         let firstLetterColor = colorCharts[selectedChartName] ? colorCharts[selectedChartName][0] : null;
         if (firstLetterColor && firstLetterColor.toLowerCase() === bgColor.toLowerCase()) {
@@ -225,7 +235,7 @@ window.addEventListener('load',()=>{
         
         try {
             console.log('Sending to writer:', {word:words, chartName:selectedChartName, colorPickingType: selectedColorPickingType, bgColor:bgColor});
-            m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch, animationDirection: animationDirection}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[], bgColor:bgColor}}, callBack:{callBackName:null, echo:false}});
+            m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch, animationDirection: animationDirection, animationSpeed: animationSpeed}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[], bgColor:bgColor}}, callBack:{callBackName:null, echo:false}}, () => {});
             
             // Save settings
             await saveSettings();
@@ -241,39 +251,41 @@ window.addEventListener('load',()=>{
     //reset proces
     document.querySelector('#resetButton').addEventListener('click',()=>{
         console.log('RESET button clicked');
-        m2c({value:'resetProcess',action:'runRequest'});
+        m2c({value:'resetProcess',action:'runRequest'}, () => {});
         showSuccess('Table reset!');
+    });
+
+    //disco ball mode
+    document.querySelector('#discoButton').addEventListener('click',()=>{
+        console.log('DISCO button clicked');
+        m2c({value:'discoBall',action:'runRequest'}, (success) => {
+            if (success) {
+                showSuccess('🪩 Disco mode activated!');
+            }
+        });
     });
 
     //animationDirectionModifier
     document.querySelector('#animationDirection2Left').addEventListener('click',()=>{
-        m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Left'}})
+        m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Left'}}, () => {})
     });
     document.querySelector('#animationDirection2Right').addEventListener('click',()=>{
-        m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Right'}})
+        m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Right'}}, () => {})
     });
 
 // animation speed range input
     document.querySelector('#animationSpeed').addEventListener('change',(e)=>{
         document.getElementById('animationSpeedDisplay').textContent = e.target.value;
-        m2c({value:'animationModifier', action:'runRequest', payload: {animationSpeed:e.target.value}})
+        m2c({value:'animationModifier', action:'runRequest', payload: {animationSpeed:e.target.value}}, () => {})
     });
     
     document.querySelector('#animationSpeed').addEventListener('input',(e)=>{
         document.getElementById('animationSpeedDisplay').textContent = e.target.value;
     });
 
-    // board bgColor
-    document.querySelector('#bgColor').addEventListener('change',(e)=>{
-       m2c({value:'animationModifier', action:'runRequest', payload:{baseColor:e.target.value}})
-    })
-
-    //paintBGNowButton - bgColor painter
-    document.querySelector('#paintBGNowButton').addEventListener('click',()=>{
-        console.log('Apply BG Now button clicked');
-        let bgColor = document.getElementById('bgColor').value;
-        m2c({value:'bgColorPainter', action:'runRequest', payload:{color:bgColor}});
-        showSuccess('Background color applied!');
+    // board bgColor - apply immediately on change
+    document.querySelector('#bgColor').addEventListener('input',(e)=>{        m2c({value:'animationModifier', action:'runRequest', payload:{baseColor:e.target.value}}, () => {});
+        m2c({value:'bgColorPainter', action:'runRequest', payload:{color:e.target.value}}, () => {});
     })
 
     // Keyboard shortcuts
@@ -331,9 +343,26 @@ function setColorSelectionOptions(data){
 // Also if you want some feedback from this function or any result sen a callBack name to be return as new messages value with action:runRequest. I there are parameters need to be send back put them into payload object again.
 
 //Sending message to content side
-function m2c(messageToContentSide){
+function m2c(messageToContentSide, callback){
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, messageToContentSide);
+        if (tabs[0]) {
+            chrome.tabs.sendMessage(tabs[0].id, messageToContentSide, function(response) {
+                if (chrome.runtime.lastError) {
+                    // Silently handle errors for initialization calls
+                    if (messageToContentSide.value === 'getColorChartData') {
+                        console.log('Could not connect to content script (this is normal during initialization)');
+                    } else {
+                        console.warn('Message sending failed:', chrome.runtime.lastError.message);
+                    }
+                    if (callback) callback(false);
+                } else {
+                    if (callback) callback(true);
+                }
+            });
+        } else {
+            console.warn('No active tab found');
+            if (callback) callback(false);
+        }
     });
 }
 //Receiving message from the content side

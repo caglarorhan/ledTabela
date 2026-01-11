@@ -1,7 +1,7 @@
 {
   "name": "Led Tabela",
   "description" : "Git Led Tabela",
-  "version": "2020.0.2",
+  "version": "2026.0.0",
   "manifest_version": 3,
   "action": {
     "default_popup": "popup.html",
