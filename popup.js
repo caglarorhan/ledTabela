@@ -37,9 +37,25 @@ async function loadSettings() {
 }
 
 window.addEventListener('load',()=>{
+    // Check if current tab is a GitHub profile page
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        if (tabs[0]) {
+            let url = tabs[0].url;
+            // Pattern: https://github.com/{username} (no more slashes after username)
+            let githubProfilePattern = /^https:\/\/github\.com\/[^\/]+\/?$/;
+            
+            if (!githubProfilePattern.test(url)) {
+                showError('⚠️ This extension only works on GitHub profile pages (e.g., github.com/username)');
+            }
+        }
+    });
+    
     // colorChart and picking type selections
     // Try to get from content script first
     m2c({value:'getColorChartData', action:'runRequest', callBack: {callBackName: 'setColorSelectionOptions', echo:true}});
+    
+    // Load saved patterns into dropdown
+    loadSavedPatterns();
     
     // Fallback: populate dropdowns directly if colorCharts is available
     setTimeout(() => {
@@ -68,6 +84,40 @@ window.addEventListener('load',()=>{
     
     // Load saved settings
     loadSettings();
+    
+    // Clear text when pattern is selected
+    document.querySelector('#savedPatternSelection').addEventListener('change', function() {
+        if (this.value) {
+            document.querySelector('#words').value = '';
+        }
+    });
+    
+    // Clear pattern when text is entered
+    document.querySelector('#words').addEventListener('input', function() {
+        if (this.value) {
+            document.querySelector('#savedPatternSelection').value = '';
+        }
+    });
+    
+    function loadSavedPatterns() {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                action: 'getSavedPatterns'
+            }, function(response) {
+                if (response && response.patterns) {
+                    const select = document.querySelector('#savedPatternSelection');
+                    select.innerHTML = '<option value="">Choose a saved pattern...</option>';
+                    
+                    Object.keys(response.patterns).forEach(name => {
+                        let option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        });
+    }
 
     // Helper functions for UI feedback
     function showError(message) {
@@ -106,10 +156,42 @@ window.addEventListener('load',()=>{
     document.querySelector('#sendWordsButton').addEventListener('click',async (e)=>{
         console.log('RUN button clicked');
         let words = document.querySelector('#words').value;
+        let savedPattern = document.querySelector('#savedPatternSelection').value;
         
-        // Input validation
+        // Check if using pattern or text
+        if (savedPattern) {
+            // Use saved pattern
+            let animationSwitch = document.querySelector('#animationSwitch').checked;
+            let bgColor = document.querySelector('#bgColor').value;
+            let animationDirection = document.querySelector('#animationDirection2Right').checked ? 'Right' : 'Left';
+            let animationSpeed = parseInt(document.querySelector('#animationSpeed').value);
+            
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    action: 'runPattern',
+                    patternName: savedPattern,
+                    animate: {
+                        switch: animationSwitch,
+                        animationDirection: animationDirection,
+                        animationSpeed: animationSpeed
+                    },
+                    color: {
+                        bgColor: bgColor
+                    }
+                }, function(response) {
+                    if (response && response.success) {
+                        showSuccess(animationSwitch ? 'Pattern animating!' : 'Pattern applied!');
+                    } else {
+                        showError('Failed to apply pattern');
+                    }
+                });
+            });
+            return;
+        }
+        
+        // Input validation for text
         if (!words || words.trim() === '') {
-            showError('Please enter some text!');
+            showError('Please enter some text or select a pattern!');
             return false;
         }
         
@@ -131,10 +213,18 @@ window.addEventListener('load',()=>{
         let animationDirection='Left';
         if(document.querySelector('#animationDirection2Right').checked){animationDirection='Right'}
         
+        // Validate colors - get first color from selected chart
+        let firstLetterColor = colorCharts[selectedChartName] ? colorCharts[selectedChartName][0] : null;
+        if (firstLetterColor && firstLetterColor.toLowerCase() === bgColor.toLowerCase()) {
+            showError('Background and letter colors cannot be the same! Please choose different colors.');
+            return false;
+        }
+        
         // Show loading state
         setLoading(true);
         
         try {
+            console.log('Sending to writer:', {word:words, chartName:selectedChartName, colorPickingType: selectedColorPickingType, bgColor:bgColor});
             m2c({value:'writer', action:'runRequest', payload:{word:words, animate:{switch:animationSwitch, animationDirection: animationDirection}, color:{chartName:selectedChartName, colorPickingType: selectedColorPickingType, set:[], bgColor:bgColor}}, callBack:{callBackName:null, echo:false}});
             
             // Save settings
