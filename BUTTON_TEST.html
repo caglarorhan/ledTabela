@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Test - LED Tabela</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+        }
+        h1 { color: #7c3aed; margin-top: 0; }
+        .test-section {
+            background: #334155;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .test-button {
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #7c3aed;
+            color: white;
+            transition: all 0.2s;
+        }
+        .test-button:hover {
+            background: #6d28d9;
+            transform: translateY(-2px);
+        }
+        .test-button.secondary {
+            background: #475569;
+        }
+        .test-button.secondary:hover {
+            background: #64748b;
+        }
+        #log {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #334155;
+        }
+        .log-entry.success { color: #6ee7b7; }
+        .log-entry.error { color: #fca5a5; }
+        .log-entry.info { color: #cbd5e1; }
+        select, input {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: #f1f5f9;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Button Functionality Test</h1>
+        
+        <div class="test-section">
+            <h3>Test 1: Button Click Detection</h3>
+            <p>Click these buttons to verify they respond:</p>
+            <button class="test-button" id="test1">Test Button 1</button>
+            <button class="test-button secondary" id="test2">Test Button 2</button>
+            <button class="test-button" id="test3">Test Button 3</button>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: Dropdown Population</h3>
+            <p>Color Chart:</p>
+            <select id="colorChartTest">
+                <option value="">Loading...</option>
+            </select>
+            <p>Color Picking:</p>
+            <select id="colorPickingTest">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: Form Input Detection</h3>
+            <input type="text" id="testInput" placeholder="Type something..." value="TEST">
+            <input type="color" id="testColor" value="#7c3aed">
+            <button class="test-button" id="testSubmit">Submit Test</button>
+        </div>
+
+        <div class="test-section">
+            <h3>Event Log:</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script src="./colorCharts.js"></script>
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Test 1: Basic button clicks
+        document.getElementById('test1').addEventListener('click', () => {
+            addLog('Button 1 clicked!', 'success');
+        });
+
+        document.getElementById('test2').addEventListener('click', () => {
+            addLog('Button 2 clicked!', 'success');
+        });
+
+        document.getElementById('test3').addEventListener('click', () => {
+            addLog('Button 3 clicked!', 'success');
+        });
+
+        // Test 2: Dropdown population
+        window.addEventListener('load', () => {
+            addLog('Page loaded, testing dropdown population...', 'info');
+            
+            const chartSelect = document.getElementById('colorChartTest');
+            const pickingSelect = document.getElementById('colorPickingTest');
+            
+            if (typeof colorCharts !== 'undefined') {
+                chartSelect.innerHTML = '<option value="">Select chart</option>';
+                Object.keys(colorCharts).forEach((chartName) => {
+                    let option = document.createElement('option');
+                    option.value = chartName;
+                    option.textContent = chartName;
+                    chartSelect.append(option);
+                });
+                addLog(`✓ Color charts populated: ${Object.keys(colorCharts).length} options`, 'success');
+            } else {
+                addLog('✗ colorCharts not found!', 'error');
+            }
+            
+            if (typeof colorPickingTypes !== 'undefined') {
+                pickingSelect.innerHTML = '<option value="">Select type</option>';
+                colorPickingTypes.forEach((pickingType) => {
+                    let option = document.createElement('option');
+                    option.value = pickingType;
+                    option.textContent = pickingType;
+                    pickingSelect.append(option);
+                });
+                addLog(`✓ Color picking types populated: ${colorPickingTypes.length} options`, 'success');
+            } else {
+                addLog('✗ colorPickingTypes not found!', 'error');
+            }
+        });
+
+        // Test 3: Form submission
+        document.getElementById('testSubmit').addEventListener('click', () => {
+            const input = document.getElementById('testInput').value;
+            const color = document.getElementById('testColor').value;
+            addLog(`Form submitted: text="${input}", color="${color}"`, 'success');
+        });
+
+        // Initial log
+        addLog('Button test initialized. Click buttons above to test.', 'info');
+    </script>
+</body>
+</html>

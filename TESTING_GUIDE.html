@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Led Tabela - Testing Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin: 30px 0 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin: 20px 0 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .step-1 { background: #10b981; color: white; }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 50px;
+        }
+        .checklist li:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 15px;
+            font-size: 1.5em;
+            color: #667eea;
+        }
+        .checklist li.completed {
+            background: #d4edda;
+            border-left-color: #10b981;
+        }
+        .checklist li.completed::before {
+            content: '✓';
+            color: #10b981;
+        }
+        .instruction-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .instruction-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .step strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .screenshot-placeholder {
+            background: #e9ecef;
+            border: 2px dashed #6c757d;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            margin: 15px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 30px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Led Tabela Testing Guide</h1>
+        <span class="badge step-1">STEP 1: Testing & Validation</span>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar">0%</div>
+        </div>
+
+        <h2>📦 Part 1: Loading the Extension in Chrome</h2>
+
+        <div class="instruction-box">
+            <h4>⚠️ Prerequisites</h4>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Chrome browser (version 88 or higher for Manifest V3)</li>
+                <li>Developer mode enabled in Chrome extensions</li>
+                <li>Extension files in: <code>d:\htdocs\chrome-extensions\ledTabela\ledTabela\</code></li>
+            </ul>
+        </div>
+
+        <h3>Loading Steps:</h3>
+
+        <div class="step">
+            <strong>Step 1.1: Open Chrome Extensions Page</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Open Chrome browser</li>
+                <li>Navigate to: <code>chrome://extensions/</code></li>
+                <li>OR: Menu (⋮) → More tools → Extensions</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <strong>Step 1.2: Enable Developer Mode</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Find the "Developer mode" toggle in the top-right corner</li>
+                <li>Click to enable it (should turn blue)</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <strong>Step 1.3: Load Unpacked Extension</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Click "Load unpacked" button</li>
+                <li>Navigate to: <code>d:\htdocs\chrome-extensions\ledTabela\ledTabela\</code></li>
+                <li>Select the folder and click "Select Folder"</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <strong>✅ Success Indicators:</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Extension card appears with "Led Tabela" name</li>
+                <li>Icon displays correctly</li>
+                <li>No red error messages</li>
+                <li>Extension is enabled (toggle is ON)</li>
+            </ul>
+        </div>
+
+        <h2>✅ Part 2: Testing Checklist</h2>
+
+        <h3>2.1 Icon Display Tests</h3>
+        <ul class="checklist" data-section="icons">
+            <li data-test="icon-toolbar">Check extension icon appears in Chrome toolbar</li>
+            <li data-test="icon-extensions">Verify icon on chrome://extensions/ page</li>
+            <li data-test="icon-size">Confirm icon is clear and not pixelated</li>
+            <li data-test="icon-hover">Test hover state on toolbar icon</li>
+        </ul>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Icon Size</th>
+                    <th>Purpose</th>
+                    <th>Location to Check</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>16x16</td>
+                    <td>Toolbar icon</td>
+                    <td>Browser toolbar</td>
+                    <td>☐</td>
+                </tr>
+                <tr>
+                    <td>24x24</td>
+                    <td>Action icon</td>
+                    <td>Extension popup</td>
+                    <td>☐</td>
+                </tr>
+                <tr>
+                    <td>32x32</td>
+                    <td>Enhanced display</td>
+                    <td>Extensions page</td>
+                    <td>☐</td>
+                </tr>
+                <tr>
+                    <td>64x64</td>
+                    <td>Management UI</td>
+                    <td>Extension details</td>
+                    <td>☐</td>
+                </tr>
+                <tr>
+                    <td>128x128</td>
+                    <td>Store listing</td>
+                    <td>Chrome Web Store</td>
+                    <td>☐</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>2.2 Popup Functionality Tests</h3>
+        <ul class="checklist" data-section="popup">
+            <li data-test="popup-open">Click extension icon - popup should open</li>
+            <li data-test="popup-size">Popup displays at 300x300px size</li>
+            <li data-test="popup-style">All UI elements visible and styled correctly</li>
+            <li data-test="popup-dropdowns">Color Chart dropdown populates with options</li>
+            <li data-test="popup-picking">Color Picking Type dropdown works</li>
+            <li data-test="popup-input">Word input field accepts text</li>
+            <li data-test="popup-checkbox">Animation checkbox toggles</li>
+            <li data-test="popup-color">Background color picker opens</li>
+            <li data-test="popup-radio">Direction radio buttons selectable</li>
+            <li data-test="popup-range">Animation speed slider moves smoothly</li>
+            <li data-test="popup-buttons">All buttons (RESET, RUN, Paint BG Now) clickable</li>
+        </ul>
+
+        <h3>2.3 Message Passing Tests</h3>
+        <ul class="checklist" data-section="messaging">
+            <li data-test="msg-popup-to-content">Popup can send messages to content script</li>
+            <li data-test="msg-content-to-popup">Content script can send messages to popup</li>
+            <li data-test="msg-callback">Callback functions execute properly</li>
+            <li data-test="msg-payload">Payload data transfers correctly</li>
+            <li data-test="msg-async">Async message handlers work</li>
+        </ul>
+
+        <div class="instruction-box">
+            <h4>🔍 How to Test Message Passing:</h4>
+            <ol style="margin-left: 20px; margin-top: 10px;">
+                <li>Navigate to: <a href="https://github.com" target="_blank">https://github.com</a></li>
+                <li>Open Chrome DevTools (F12)</li>
+                <li>Go to Console tab</li>
+                <li>Open the extension popup</li>
+                <li>Select a color chart from dropdown</li>
+                <li>Check for console messages (should see "test yuklendik..." on page load)</li>
+            </ol>
+        </div>
+
+        <h3>2.4 Content Script Tests</h3>
+        <ul class="checklist" data-section="content">
+            <li data-test="content-load">Content script loads on github.com pages</li>
+            <li data-test="content-dom">DOM modifications work (data boxes added)</li>
+            <li data-test="content-storage">LocalStorage access works</li>
+            <li data-test="content-alphabet">Alphabet data loads correctly</li>
+            <li data-test="content-colors">Color charts accessible</li>
+        </ul>
+
+        <h3>2.5 Permissions Tests</h3>
+        <ul class="checklist" data-section="permissions">
+            <li data-test="perm-storage">Storage permission works</li>
+            <li data-test="perm-tabs">Tabs permission functional</li>
+            <li data-test="perm-host">Host permissions for github.com active</li>
+            <li data-test="perm-no-warnings">No permission warnings in console</li>
+        </ul>
+
+        <h3>2.6 Console Error Check</h3>
+        <ul class="checklist" data-section="errors">
+            <li data-test="error-popup">No errors in popup console</li>
+            <li data-test="error-content">No errors in page console</li>
+            <li data-test="error-background">No errors in service worker (check chrome://extensions/)</li>
+            <li data-test="error-manifest">No manifest errors displayed</li>
+        </ul>
+
+        <h2>🔧 Part 3: Common Issues & Solutions</h2>
+
+        <h3>Issue 1: Extension Won't Load</h3>
+        <div class="error">
+            <strong>Symptoms:</strong> Error message when loading unpacked
+            <br><strong>Solutions:</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Check manifest.json syntax (use JSON validator)</li>
+                <li>Verify all icon files exist in correct location</li>
+                <li>Ensure file paths don't have ./ prefixes</li>
+                <li>Check for file permission issues</li>
+            </ul>
+        </div>
+
+        <h3>Issue 2: Icons Not Displaying</h3>
+        <div class="error">
+            <strong>Symptoms:</strong> Blank or default icon in toolbar
+            <br><strong>Solutions:</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Verify PNG files exist: led-tabela_16.png, led-tabela_24.png, etc.</li>
+                <li>Check file names match exactly (case-sensitive)</li>
+                <li>Reload extension after adding icons</li>
+            </ul>
+        </div>
+
+        <h3>Issue 3: Popup Not Opening</h3>
+        <div class="error">
+            <strong>Symptoms:</strong> Clicking icon does nothing
+            <br><strong>Solutions:</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Check popup.html exists and path is correct</li>
+                <li>Look for JavaScript errors in popup</li>
+                <li>Verify popup.js and itrs.js load correctly</li>
+            </ul>
+        </div>
+
+        <h3>Issue 4: Content Script Not Running</h3>
+        <div class="error">
+            <strong>Symptoms:</strong> No console message on GitHub pages
+            <br><strong>Solutions:</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Reload the GitHub page after loading extension</li>
+                <li>Check matches pattern in manifest</li>
+                <li>Verify host_permissions includes github.com</li>
+                <li>Check content script files exist and load</li>
+            </ul>
+        </div>
+
+        <h3>Issue 5: Message Passing Fails</h3>
+        <div class="error">
+            <strong>Symptoms:</strong> Actions in popup don't affect content page
+            <br><strong>Solutions:</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Ensure sendResponse is called in listeners</li>
+                <li>Check chrome.runtime.lastError in console</li>
+                <li>Verify active tab has content script loaded</li>
+                <li>Test on correct domain (github.com)</li>
+            </ul>
+        </div>
+
+        <h2>🔍 Part 4: Detailed Testing Procedures</h2>
+
+        <h3>Test A: Full Workflow Test</h3>
+        <div class="step">
+            <ol style="margin-left: 20px;">
+                <li>Navigate to any GitHub repository</li>
+                <li>Open DevTools Console</li>
+                <li>Click extension icon to open popup</li>
+                <li>Select "defaultColors" from Color Chart dropdown</li>
+                <li>Select "Random" from Color Picking Type</li>
+                <li>Enter "HELLO" in Word input</li>
+                <li>Check Animation checkbox</li>
+                <li>Select animation direction</li>
+                <li>Click RUN button</li>
+                <li>Observe GitHub contribution graph for changes</li>
+                <li>Check console for any errors</li>
+            </ol>
+        </div>
+
+        <h3>Test B: Storage Test</h3>
+        <div class="step">
+            <ol style="margin-left: 20px;">
+                <li>Open popup</li>
+                <li>Configure some settings</li>
+                <li>Close popup</li>
+                <li>Reopen popup - settings should persist</li>
+                <li>Open DevTools → Application → Local Storage</li>
+                <li>Verify alphabet data is stored</li>
+            </ol>
+        </div>
+
+        <h3>Test C: Animation Test</h3>
+        <div class="step">
+            <ol style="margin-left: 20px;">
+                <li>Set up word with animation enabled</li>
+                <li>Test "To the left" direction</li>
+                <li>Test "To the right" direction</li>
+                <li>Adjust animation speed slider</li>
+                <li>Verify smooth transitions</li>
+            </ol>
+        </div>
+
+        <h2>📊 Testing Report Template</h2>
+
+        <div class="code">
+LED TABELA TESTING REPORT
+Date: [Your Date]
+Chrome Version: [Check chrome://version/]
+Extension Version: 2020.0.2
+
+ICON DISPLAY: [ ] Pass [ ] Fail
+Notes: _________________________________
+
+POPUP FUNCTIONALITY: [ ] Pass [ ] Fail  
+Notes: _________________________________
+
+MESSAGE PASSING: [ ] Pass [ ] Fail
+Notes: _________________________________
+
+CONTENT SCRIPTS: [ ] Pass [ ] Fail
+Notes: _________________________________
+
+PERMISSIONS: [ ] Pass [ ] Fail
+Notes: _________________________________
+
+CONSOLE ERRORS: [ ] None [ ] Found
+Details: _________________________________
+
+OVERALL STATUS: [ ] Ready for Next Step [ ] Needs Fixes
+        </div>
+
+        <div class="success">
+            <strong>✅ When All Tests Pass:</strong>
+            <p style="margin-top: 10px;">The extension is ready for Step 2: Feature Enhancements. Document any issues found and proceed with confidence!</p>
+        </div>
+
+        <h2>🎯 Quick Test Buttons</h2>
+        <p style="margin-bottom: 15px;">Use these buttons to quickly test specific features:</p>
+        <button class="btn" onclick="window.open('chrome://extensions/', '_blank')">Open Extensions Page</button>
+        <button class="btn" onclick="window.open('https://github.com', '_blank')">Open GitHub</button>
+        <button class="btn btn-secondary" onclick="copyTestURL()">Copy Test URL</button>
+
+        <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+            <h3 style="color: #667eea;">Ready to Test?</h3>
+            <p style="margin: 15px 0;">Follow each checklist item and mark them complete as you go!</p>
+            <button class="btn" onclick="markAllComplete()">Mark All Complete</button>
+            <button class="btn btn-secondary" onclick="resetAll()">Reset Checklist</button>
+        </div>
+    </div>
+
+    <script>
+        // Interactive checklist functionality
+        document.querySelectorAll('.checklist li').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.toggle('completed');
+                updateProgress();
+            });
+        });
+
+        function updateProgress() {
+            const total = document.querySelectorAll('.checklist li').length;
+            const completed = document.querySelectorAll('.checklist li.completed').length;
+            const percentage = Math.round((completed / total) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+        }
+
+        function markAllComplete() {
+            document.querySelectorAll('.checklist li').forEach(item => {
+                item.classList.add('completed');
+            });
+            updateProgress();
+        }
+
+        function resetAll() {
+            document.querySelectorAll('.checklist li').forEach(item => {
+                item.classList.remove('completed');
+            });
+            updateProgress();
+        }
+
+        function copyTestURL() {
+            const url = 'd:\\htdocs\\chrome-extensions\\ledTabela\\ledTabela\\';
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Extension path copied to clipboard!');
+            });
+        }
+
+        // Initialize progress
+        updateProgress();
+    </script>
+</body>
+</html>

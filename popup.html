@@ -2,44 +2,465 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Led Tabela</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #7c3aed;
+            --primary-hover: #6d28d9;
+            --primary-light: #a78bfa;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #475569;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            width: 420px;
+            min-height: 580px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header .version {
+            font-size: 11px;
+            font-weight: 400;
+            opacity: 0.8;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control, select {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23cbd5e1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-group:hover {
+            background: var(--bg-input);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .radio-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 42px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            background: var(--bg-input);
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 4px;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        .slider-group {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .slider-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .slider-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-input);
+            border-radius: 3px;
+            outline: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--primary-hover);
+            transform: scale(1.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 6px;
+            padding: 6px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 11px;
+            white-space: nowrap;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .footer {
+            padding: 12px 20px;
+            background: var(--bg-card);
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 20px 0;
+        }
+    </style>
 </head>
-<body style="padding:0; margin: 0; width:300px; height:300px;">
-<div style="width: 100%; padding:3px; margin: 0; border-bottom: 2px solid grey; background-color: black; color: red; font-size: 14px; font-weight: bold; text-align: center">Led Tabela</div>
-<div style="min-height: 100%">
-    <div>
-        Color Chart:
-        <select name="colorChartSelection" id="colorChartSelection">
-            <option value="">Please select a color chart</option>
-        </select>
-        <br>
-        Color Picking Type:<select name="colorPickingTypeSelection" id="colorPickingTypeSelection">
-        <option value="">Color picking type</option>
-    </select>
+<body>
+    <div class="header">
+        <h1>
+            <span>🎨 LED TABELA</span>
+            <span class="version">v3.1</span>
+        </h1>
     </div>
-    <div style="padding:5px";>
-       Word:  <input type="text" id="words" placeholder="Input some words" value="ABCDEFG">
-    </div>
-    <div class="row">
-        <div class="">
-            Animation: <input type="checkbox" id="animationSwitch" checked="checked" title="Is animation on?"><br>
-            bgcolor:
-            <input type="color" value="#ebedf0" id="bgColor"><button type="button" id="paintBGNowButton">Paint BG Now</button>
-            <br>
-            To the left<input type="radio" name="direction" id="animationDirection2Left" value="left" checked="checked">
-            <input type="radio" name="direction" id="animationDirection2Right" value="right"> To the Right
-            <br>
-            <input type="range" class="itrs" id="animationSpeed" min="10" max="1000" value="300" step="10" data-sync-to="animationSpeedData" data-two-way-bind="true">
-            <input type="text" id="animationSpeedData" size="4" value="300">
-            <p style="margin-top:30px">
-                <button class="button" id="resetButton" style="float:left">RESET</button>
-                <button class="button" id="sendWordsButton" style="float:right">RUN</button>
-                </p>
+
+    <div class="container">
+        <div id="errorMessage" class="message error-message"></div>
+        <div id="successMessage" class="message success-message"></div>
+
+        <div class="form-group">
+            <label class="form-label">Text to Display</label>
+            <input type="text" id="words" class="form-control" placeholder="Enter your text here..." value="HELLO">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Color Chart</label>
+                <select id="colorChartSelection" class="form-control">
+                    <option value="">Select chart</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Color Picking</label>
+                <select id="colorPickingTypeSelection" class="form-control">
+                    <option value="">Select type</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="animationSwitch" checked>
+                <label for="animationSwitch">Enable Animation</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Animation Direction</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" name="direction" id="animationDirection2Left" value="left" checked>
+                    <label for="animationDirection2Left">← Left</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="direction" id="animationDirection2Right" value="right">
+                    <label for="animationDirection2Right">Right →</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Animation Speed</span>
+                    <span class="slider-value"><span id="animationSpeedDisplay">300</span>ms</span>
+                </div>
+                <input type="range" id="animationSpeed" min="10" max="1000" value="300" step="10">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Background Color</label>
+            <div class="color-picker-group">
+                <input type="color" value="#ebedf0" id="bgColor">
+                <button type="button" id="paintBGNowButton" class="btn btn-secondary" style="flex: 1;">
+                    Apply BG Now
+                </button>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="button-group">
+            <button class="btn btn-secondary tooltip" id="resetButton">
+                ↻ RESET
+                <span class="tooltiptext">Ctrl+R</span>
+            </button>
+            <button class="btn btn-primary tooltip" id="sendWordsButton">
+                ▶ RUN
+                <span class="tooltiptext">Ctrl+Enter</span>
+            </button>
         </div>
     </div>
-</div>
-<div style="width:100%; padding:3px; margin:0; background-color: black; color:red; height:20px">Icons from Freepik</div>
-<script src="./popup.js"></script>
-<script src="./itrs.js"></script>
+
+    <div class="footer">
+        Icons from Freepik | GitHub Contribution Art
+    </div>
+
+    <script src="./colorCharts.js"></script>
+    <script src="./popup.js"></script>
+    <script src="./itrs.js"></script>
 </body>
 </html>

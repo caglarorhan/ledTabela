@@ -27,6 +27,7 @@ window.addEventListener('load',  ()=>{
     let alpha = JSON.parse(wLS.getItem('alphabet'));
     Object.keys(alphabet).forEach((key)=>{if(!alpha[key]){alpha[key]=alphabet[key];}});
     wLS.setItem('alphabet',JSON.stringify(alpha));
+    console.log(`Alphabet loaded with ${Object.keys(alpha).length} letters:`, Object.keys(alpha).join(', '));
 
 
     // TODO: draw dugmesi yapistirilmis datayi tabloya aktaracak
@@ -36,39 +37,52 @@ window.addEventListener('load',  ()=>{
     // TODO: Animasyonlu colorchart ve colorpicker verisi olan payload da wLS ye saklanabilecek
     // TODO: wLS export edilebilecek ve import edilebilecek
     // TODO: nokta render fonksiyonunda color noktada varsa degilde animasyondaki color pick type oncelikli secilecek!
+    
+    function initDataBoxes() {
+        // data boxes added
+        let liClassList = "col-12 col-md-6 col-lg-6 mb-3 d-flex flex-content-stretch".split(" ");
+        let divClassList = "Box pinned-item-list-item d-flex p-3 width-full public fork text-gray".split(" ");
+        let boxContainerOl = document.querySelector('ol.d-flex.flex-wrap.list-style-none.gutter-condensed.mb-4');
+    
+    if (boxContainerOl) {
+        let boxLi = document.createElement('li'); boxContainerOl.append(boxLi); boxLi.classList.add(...liClassList);
+        let boxDiv = document.createElement('div');  boxDiv.classList.add(...divClassList); boxDiv.id = 'dataCumulative';
+        boxLi.append(boxDiv);
+        boxDiv.innerHTML=`<div id="dataDiv" style="width:100%">
+                            <button class="btn mt-1 mb-1" type="button" id="save2LSAlphabetButton">Save2 LS Alphabet</button>
+                            <button class="btn mt-1 mb-1" type="button" id="data2TableDrawButton">Draw</button>
+                            <input type="checkbox" id="drawAndEditButton" checked="checked">Draw&Edit
+                            <br>Written Data:<span id="keyNameFromAlphabet"></span>
+                                <textarea id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></textarea></div>`;
+
+        let boxLi2 = document.createElement('li'); boxContainerOl.append(boxLi2); boxLi2.classList.add(...liClassList);
+        let boxDiv2 = document.createElement('div'); boxLi2.append(boxDiv2); boxDiv2.classList.add(...divClassList); boxDiv2.id = 'remindersList';
+        boxDiv2.innerHTML = `<div>Saved Push/Commit Reminders Schedule
+                            <input type="text" placeholder="Search alphabet" id="searchTextAlphabet" class="ml-2 form-control flex-auto input-sm">
+                            <div style="width:100%; height: 150px; overflow-y: auto;"><ul class="filter-list small" id="searchAlphabetResults"></ul></div>
+                            </div>`;
+    }
 
 
-    // data boxes added
-    let liClassList = "col-12 col-md-6 col-lg-6 mb-3 d-flex flex-content-stretch".split(" ");
-    let divClassList = "Box pinned-item-list-item d-flex p-3 width-full public fork text-gray".split(" ");
-    let boxContainerOl = document.querySelector('.d-flex.flex-wrap.list-style-none.gutter-condensed.mb-4');
-    let boxLi = document.createElement('li'); boxContainerOl.append(boxLi); boxLi.classList.add(...liClassList);
-    let boxDiv = document.createElement('div');  boxDiv.classList.add(...divClassList); boxDiv.id = 'dataCumulative';
-    boxLi.append(boxDiv);
-    boxDiv.innerHTML=`<div id="dataDiv" style="width:100%">
-                        <button class="btn mt-1 mb-1" type="button" id="save2LSAlphabetButton">Save2 LS Alphabet</button>
-                        <button class="btn mt-1 mb-1" type="button" id="data2TableDrawButton">Draw</button>
-                        <input type="checkbox" id="drawAndEditButton" checked="checked">Draw&Edit
-                        <br>Written Data:<span id="keyNameFromAlphabet"></span>
-                            <textarea id="dataP" class="text-gray text-small mb-2" style="height:200px; width:100%"></textarea></div>`;
-
-    let boxLi2 = document.createElement('li'); boxContainerOl.append(boxLi2); boxLi2.classList.add(...liClassList);
-    let boxDiv2 = document.createElement('div'); boxLi2.append(boxDiv2); boxDiv2.classList.add(...divClassList); boxDiv2.id = 'remindersList';
-    boxDiv2.innerHTML = `<div>Saved Push/Commit Reminders Schedule
-                        <input type="text" placeholder="Search alphabet" id="searchTextAlphabet" class="ml-2 form-control flex-auto input-sm">
-                        <div style="width:100%; height: 150px; overflow-y: auto;"><ul class="filter-list small" id="searchAlphabetResults"></ul></div>
-                        </div>`;
-
-
-    document.querySelector('div.contrib-footer.clearfix.mt-1.mx-3.px-3.pb-1').innerHTML+='<select  id="processSelection"><option value="">Select a process</option></select><span style="color:red; font-weight: bold">&#8592; Pattern Creation Options</span><span style="margin-left: 10px;"><input type="color" value="#ff0000" id="selectedColor"> </span>';
-    let processSelection = document.querySelector('#processSelection');
-    processSelection.addEventListener('change',(e)=>{processSelect(e.target.value)});
-    let clearTheDataButton = document.createElement('option'); clearTheDataButton.textContent='Clear The Data'; clearTheDataButton.value='clearTheDataButton';processSelection.append(clearTheDataButton);
-    let clearTheTableButton = document.createElement('option'); clearTheTableButton.textContent='Clear The Table'; clearTheTableButton.value='clearTheTableButton';processSelection.append(clearTheTableButton);
-    let writeData2TableButton = document.createElement('option'); writeData2TableButton.textContent='Write Data To Table'; writeData2TableButton.value='writeData2TableButton';processSelection.append(writeData2TableButton);
-    let paintBGButton = document.createElement('option'); paintBGButton.textContent='Paint Table BG'; paintBGButton.value='paintBGButton'; processSelection.append(paintBGButton);
-
-
+    // Insert controls after the contribution calendar
+    let footer = document.querySelector('.width-full.f6.px-0.px-md-5.py-1');
+    if (footer) {
+        let controlsDiv = document.createElement('div');
+        controlsDiv.className = 'width-full f6 px-0 px-md-5 py-2 border-top';
+        controlsDiv.style.marginTop = '10px';
+        controlsDiv.innerHTML = '<select id="processSelection"><option value="">Select a process</option></select><span style="color:red; font-weight: bold">&#8592; Pattern Creation Options</span><span style="margin-left: 10px;"><input type="color" value="#ff0000" id="selectedColor"> </span>';
+        footer.parentNode.insertBefore(controlsDiv, footer.nextSibling);
+        
+        let processSelection = document.querySelector('#processSelection');
+        if (processSelection) {
+            processSelection.addEventListener('change',(e)=>{processSelect(e.target.value)});
+            let clearTheDataButton = document.createElement('option'); clearTheDataButton.textContent='Clear The Data'; clearTheDataButton.value='clearTheDataButton';processSelection.append(clearTheDataButton);
+            let clearTheTableButton = document.createElement('option'); clearTheTableButton.textContent='Clear The Table'; clearTheTableButton.value='clearTheTableButton';processSelection.append(clearTheTableButton);
+            let writeData2TableButton = document.createElement('option'); writeData2TableButton.textContent='Write Data To Table'; writeData2TableButton.value='writeData2TableButton';processSelection.append(writeData2TableButton);
+            let paintBGButton = document.createElement('option'); paintBGButton.textContent='Paint Table BG'; paintBGButton.value='paintBGButton'; processSelection.append(paintBGButton);
+        }
+    }
+    
     function processSelect(processName){
         switch(processName){
             case 'clearTheDataButton' :
@@ -90,27 +104,9 @@ window.addEventListener('load',  ()=>{
 
         }
     }
-
-    //
-    rectNodeList = document.querySelectorAll('svg.js-calendar-graph-svg g > g > rect');
-    rectNodeList.forEach((rectNode)=>{
-
-        let x=Math.floor(i/7);
-        let y = i%7;
-        rectNode.setAttribute("id", `ID_${x}-${y}`);
-        rectNode.addEventListener('click',(e)=>{
-            // 3. parametre color pickerdan alinacak
-            let selectedColor = document.querySelector('#selectedColor').value;
-            newLetterRecord.push([x,y,selectedColor]);
-            document.querySelector('#dataP').value= `${JSON.stringify(newLetterRecord)}`;
-            e.target.style.setProperty("fill",selectedColor, "important");
-        });
-        xMax = x;
-        yMax = y;
-        i++;
-    });
-
-//save2LSAlphabetButton
+    
+    // Add event listeners for the data box buttons after elements are created
+    //save2LSAlphabetButton
     document.querySelector('#save2LSAlphabetButton').addEventListener('click',()=>{
         let alphabetElementName = prompt('Please write a name for your data to insert into your local storage alphabet.');
         let dataP = document.querySelector('#dataP').value;
@@ -152,10 +148,93 @@ window.addEventListener('load',  ()=>{
                 document.getElementById('keyNameFromAlphabet').textContent=e.target.dataset['key'];
            })
        })
-
-
-
     });
+    
+    } // Close initDataBoxes function
+
+    //
+    // GitHub changed from SVG to TABLE structure
+    // New selector: td.ContributionCalendar-day
+    // Wait for calendar to load
+    let initCalendar = () => {
+        rectNodeList = document.querySelectorAll('td.ContributionCalendar-day');
+        if(rectNodeList.length === 0) {
+            console.log('Calendar not found yet, retrying...');
+            setTimeout(initCalendar, 500);
+            return;
+        }
+        
+        console.log(`Found ${rectNodeList.length} calendar cells`);
+        
+        // Build a 2D grid based on actual DOM table structure
+        // Find the parent table structure
+        let rows = document.querySelectorAll('table.ContributionCalendar-grid tbody tr');
+        
+        if(rows.length > 0) {
+            console.log(`Found ${rows.length} rows in calendar table`);
+            
+            rows.forEach((row, rowIndex) => {
+                let cells = row.querySelectorAll('td.ContributionCalendar-day');
+                cells.forEach((cell, colIndex) => {
+                    let x = colIndex;  // column position
+                    let y = rowIndex;  // row position
+                    
+                    if(i < 14) console.log(`Cell ${i}: x=${x}, y=${y}`);
+                    
+                    cell.setAttribute("id", `ID_${x}-${y}`);
+                    cell.addEventListener('click',(e)=>{
+                        let selectedColorInput = document.querySelector('#selectedColor');
+                        if(selectedColorInput) {
+                            let selectedColor = selectedColorInput.value;
+                            newLetterRecord.push([x,y,selectedColor]);
+                            let dataP = document.querySelector('#dataP');
+                            if(dataP) {
+                                dataP.value = `${JSON.stringify(newLetterRecord)}`;
+                            }
+                            e.target.style.setProperty("background-color",selectedColor, "important");
+                        }
+                    });
+                    xMax = Math.max(xMax, x);
+                    yMax = Math.max(yMax, y);
+                    i++;
+                });
+            });
+        } else {
+            // Fallback if table structure not found
+            console.log('Table structure not found, using fallback');
+            rectNodeList.forEach((rectNode)=>{
+                let x = Math.floor(i / 7);
+                let y = i % 7;
+                
+                rectNode.setAttribute("id", `ID_${x}-${y}`);
+            rectNode.addEventListener('click',(e)=>{
+                // 3. parametre color pickerdan alinacak
+                let selectedColorInput = document.querySelector('#selectedColor');
+                if(selectedColorInput) {
+                    let selectedColor = selectedColorInput.value;
+                    newLetterRecord.push([x,y,selectedColor]);
+                    let dataP = document.querySelector('#dataP');
+                    if(dataP) {
+                        dataP.value = `${JSON.stringify(newLetterRecord)}`;
+                    }
+                    // Use backgroundColor for TD elements instead of fill for SVG
+                    e.target.style.setProperty("background-color",selectedColor, "important");
+                }
+            });
+            xMax = Math.max(xMax, x);
+            yMax = Math.max(yMax, y);
+            i++;
+        });
+        }
+    console.log(`Calendar grid size: xMax=${xMax}, yMax=${yMax}`);
+    
+    // Now initialize data boxes and controls
+    initDataBoxes();
+    };
+    
+    // Start initialization
+    initCalendar();
+
 // github colors
     let gitHubColors = ['#EBEDF0','#9BE9A8','#40C463','#30A14E','#216E39'];
     document.querySelectorAll('ul.legend li').forEach((oLi,oIndex)=>{
@@ -225,7 +304,7 @@ function resetProcess(){
 
 function resetter(){
     rectNodeList.forEach((rectNode)=>{
-        rectNode.style.setProperty("fill", baseColor, "important");
+        rectNode.style.setProperty("background-color", baseColor, "important");
     })
 }
 
@@ -260,7 +339,13 @@ function setter(letterData, payload){
         }else if(payload){
             dotColor = colorSelection({color:payload.color, order: datum[1]});
         }
-            document.querySelector(`#ID_${xPos}-${yPos}`).style.setProperty("fill", dotColor, "important");
+        
+        let targetCell = document.querySelector(`#ID_${xPos}-${yPos}`);
+        if(targetCell){
+            targetCell.style.setProperty("background-color", dotColor, "important");
+        } else {
+            console.error(`Cell not found: #ID_${xPos}-${yPos}`);
+        }
 
     });
     letterData.sort();
@@ -270,6 +355,8 @@ function setter(letterData, payload){
 
 
 function writer(payload){
+    console.log('Writer called with payload:', payload);
+    console.log(`Current xMax: ${xMax}, yMax: ${yMax}`);
     let letters = [];
     animationStatus=true;
     baseColor = payload.color.bgColor;
@@ -277,7 +364,11 @@ function writer(payload){
     leftPadding=0;
     leftMargin=0;
     totalWordLength=0;
-    if(payload && !payload.word){m2p({value:'Please give some input to render!'}); return false;}
+    if(payload && !payload.word){
+        console.error('Please give some input to render!');
+        return false;
+    }
+    console.log(`Writing word: ${payload.word}`);
     //console.log(`Payload icinde gonderilen metin: ${payload.word} dir.`);
     let isWord = wLSa(payload.word); //  false veya dogrudan data doner, false demek bu aranan kelime alphabet de yok demektir
     //console.log(`${payload.word} kelimesi alphabette var mi: ${isWord}`);
@@ -311,8 +402,8 @@ function writer(payload){
     }
 
     if(totalWordLength>xMax-1){
-        m2p({value:`Word ${payload.word} length is too long, shorten your word and try again!`});
-        console.log(`Word ${payload.word} length is too long, shorten your word and try again!`);
+        console.log(`Word too long: totalWordLength=${totalWordLength}, xMax=${xMax}`);
+        console.error(`Word ${payload.word} length is too long, shorten your word and try again!`);
         totalWordLength=0;
         return false;
     }
@@ -366,10 +457,10 @@ function bgColorPainter(payload){
     if(payload){
         document.getElementById('selectedColor').value = payload.color;
     }
-    rectNodeList = document.querySelectorAll('svg.js-calendar-graph-svg g > g > rect');
+    rectNodeList = document.querySelectorAll('td.ContributionCalendar-day');
     rectNodeList.forEach((rectNode)=> {
         let selectedColor = document.querySelector('#selectedColor').value;
-        rectNode.style.setProperty("fill", selectedColor, "important");
+        rectNode.style.setProperty("background-color", selectedColor, "important");
     })
 }
 
@@ -383,7 +474,7 @@ function m2p(outgoingMessage){
 // {value:'', action:'runRequest', payload:{}, callBack:null ,echo:true} // if echo is true so give the just ran functions name as callback
 //gelen
 //{value:words, action:'runRequest', payload:{}, callBack:{callBackName:null, echo:false}}
-chrome.runtime.onMessage.addListener(  async (request)=>{
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse)=>{
     switch (request.action) {
         case 'runRequest':
             let results={};
@@ -402,5 +493,6 @@ chrome.runtime.onMessage.addListener(  async (request)=>{
             console.log(request.value);
             break;
     }
+    sendResponse({received: true});
     return true;
 });

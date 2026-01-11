@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Test - LED Tabela</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1e293b;
+            color: #f1f5f9;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        iframe {
+            width: 420px;
+            height: 620px;
+            border: 2px solid #475569;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .info {
+            background: #334155;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #475569;
+        }
+        .checklist li:before {
+            content: "□ ";
+            color: #7c3aed;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="info">
+            <h1>🧪 Popup Test</h1>
+            <p>Testing LED Tabela popup functionality:</p>
+            <ul class="checklist">
+                <li>Color Chart dropdown should have options (defaultColors, fancyColors, lgbtColors)</li>
+                <li>Color Picking dropdown should have options (Random, Lineer)</li>
+                <li>Reset button should be clickable</li>
+                <li>Run button should be clickable</li>
+                <li>Animation speed slider should update value display</li>
+                <li>Background color picker should be functional</li>
+                <li>Apply BG Now button should be clickable</li>
+            </ul>
+            <p><strong>Note:</strong> In this test view, buttons won't actually work since there's no active GitHub tab. This is only for UI testing.</p>
+        </div>
+        
+        <iframe src="popup.html"></iframe>
+    </div>
+</body>
+</html>

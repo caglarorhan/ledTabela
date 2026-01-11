@@ -2,17 +2,21 @@
   "name": "Led Tabela",
   "description" : "Git Led Tabela",
   "version": "2020.0.2",
-  "manifest_version": 2,
-  "browser_action": {
+  "manifest_version": 3,
+  "action": {
     "default_popup": "popup.html",
     "default_title": "Led Tabela",
-    "default_icon": "./led-tabela_16.png"
+    "default_icon": {
+      "16": "led-tabela_16.png",
+      "24": "led-tabela_24.png",
+      "32": "led-tabela_32.png"
+    }
   },
   "icons": {
-    "16": "./led-tabela_16.png",
-    "32": "./led-tabela_32.png",
-    "64": "./led-tabela_64.png",
-    "128": "./led-tabela_128.png"
+    "16": "led-tabela_16.png",
+    "32": "led-tabela_32.png",
+    "64": "led-tabela_64.png",
+    "128": "led-tabela_128.png"
   },
   "content_scripts": [
     {
@@ -21,23 +25,34 @@
       ],
       "all_frames": false,
       "js": [
-        "./led-tabela.js",
-        "./alphabet.js",
-        "./colorCharts.js"
+        "led-tabela.js",
+        "alphabet.js",
+        "colorCharts.js"
       ],
       "match_about_blank": true
     }
   ],
   "permissions": [
     "storage",
-    "https://*.github.com/*",
     "tabs"
   ],
-  "web_accessible_resources": [
-    "./led-tabela.js",
-    "./alphabet.js",
-    "./colorCharts.js",
-    "./itrs.js"
+  "host_permissions": [
+    "https://*.github.com/*"
   ],
-  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.gstatic.com; object-src 'self';"
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "led-tabela.js",
+        "alphabet.js",
+        "colorCharts.js",
+        "itrs.js"
+      ],
+      "matches": [
+        "https://*.github.com/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
 }

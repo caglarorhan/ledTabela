@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Led Tabela - Extension Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+        .card h2::before {
+            content: '✓';
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .card li {
+            padding: 8px 0;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+        .card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .preview-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        .preview-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .popup-preview {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 300px;
+            margin: 20px auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        iframe {
+            width: 100%;
+            height: 350px;
+            border: none;
+            border-radius: 8px;
+        }
+        .icon-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .icon-item {
+            text-align: center;
+        }
+        .icon-item img {
+            display: block;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .icon-item span {
+            display: block;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .code-block {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin: 5px;
+            font-weight: 600;
+        }
+        .success {
+            background: #10b981;
+        }
+        .info {
+            background: #3b82f6;
+        }
+        .warning {
+            background: #f59e0b;
+        }
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Led Tabela Chrome Extension</h1>
+        <p class="subtitle">Manifest V3 Migration Complete!</p>
+
+        <div class="preview-section">
+            <h2>✨ What We've Done</h2>
+            <div style="text-align: center; margin: 20px 0;">
+                <span class="badge success">Manifest V3 Updated</span>
+                <span class="badge info">Icons Arranged</span>
+                <span class="badge warning">APIs Modernized</span>
+            </div>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h2>Manifest V3 Updates</h2>
+                <ul>
+                    <li>Updated manifest_version from 2 to 3</li>
+                    <li>Changed browser_action to action</li>
+                    <li>Reorganized icon structure with multiple sizes</li>
+                    <li>Split permissions into permissions & host_permissions</li>
+                    <li>Updated web_accessible_resources format</li>
+                    <li>Modernized content_security_policy</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Icon Arrangements</h2>
+                <ul>
+                    <li>16x16 - Browser toolbar icon</li>
+                    <li>24x24 - Action icon (new)</li>
+                    <li>32x32 - Enhanced action icon</li>
+                    <li>64x64 - Extension management</li>
+                    <li>128x128 - Chrome Web Store listing</li>
+                    <li>Removed ./ prefixes for cleaner paths</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Code Updates</h2>
+                <ul>
+                    <li>Updated message listeners in popup.js</li>
+                    <li>Added sendResponse to onMessage handlers</li>
+                    <li>Updated led-tabela.js message handling</li>
+                    <li>Ensured async compatibility</li>
+                    <li>Maintained backward compatibility</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>🎨 Extension Icons</h2>
+            <div class="icon-grid">
+                <div class="icon-item">
+                    <img src="led-tabela_16.png" alt="16x16 icon" width="64" height="64" style="image-rendering: pixelated;">
+                    <span>16x16</span>
+                </div>
+                <div class="icon-item">
+                    <img src="led-tabela_24.png" alt="24x24 icon" width="72" height="72" style="image-rendering: pixelated;">
+                    <span>24x24</span>
+                </div>
+                <div class="icon-item">
+                    <img src="led-tabela_32.png" alt="32x32 icon" width="96" height="96">
+                    <span>32x32</span>
+                </div>
+                <div class="icon-item">
+                    <img src="led-tabela_64.png" alt="64x64 icon" width="128" height="128">
+                    <span>64x64</span>
+                </div>
+                <div class="icon-item">
+                    <img src="led-tabela_128.png" alt="128x128 icon" width="128" height="128">
+                    <span>128x128</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>📝 Extension Popup Preview</h2>
+            <div class="popup-preview">
+                <iframe src="popup.html"></iframe>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>🔧 Key Configuration Changes</h2>
+            <div class="code-block">
+                <code>
+// Before (Manifest V2)<br>
+"manifest_version": 2,<br>
+"browser_action": {...}<br>
+<br>
+// After (Manifest V3)<br>
+"manifest_version": 3,<br>
+"action": {...}<br>
+"host_permissions": [...]
+                </code>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Led Tabela</strong> - Git Led Tabela Extension</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Icons from Freepik | Chrome Extension Manifest V3</p>
+        </footer>
+    </div>
+</body>
+</html>
