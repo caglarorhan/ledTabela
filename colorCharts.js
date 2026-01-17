@@ -28,7 +28,11 @@ let colorCharts = {
     electricLime: ['#F9FBE7', '#F0F4C3', '#E6EE9C', '#DCE775', '#CDDC39', '#C0CA33', '#AFB42B'],
     magentaMadness: ['#FCE4EC', '#F8BBD0', '#F48FB1', '#F06292', '#EC407A', '#E91E63', '#D81B60'],
     turquoiseWave: ['#E0F2F1', '#B2DFDB', '#80CBC4', '#4DB6AC', '#26A69A', '#009688', '#00897B'],
-    sunflowerYellow: ['#FFFDE7', '#FFF9C4', '#FFF59D', '#FFF176', '#FFEE58', '#FFEB3B', '#FDD835']
+    sunflowerYellow: ['#FFFDE7', '#FFF9C4', '#FFF59D', '#FFF176', '#FFEE58', '#FFEB3B', '#FDD835'],
+    
+    // Audio Visualizer Color Schemes
+    amplitudeGradient: ['#1a1a3e', '#2a2a5e', '#4040ff', '#00b8ff', '#00ff88', '#ffaa44', '#ff4444'],
+    frequencyRainbow: ['#ff3030', '#ff8030', '#ffff00', '#00ff00', '#3030ff', '#8030ff', '#ff00ff']
 };
 
 let colorPickingTypes =['Random', 'Lineer'];

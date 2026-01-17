@@ -41,7 +41,7 @@ window.addEventListener('load',()=>{
     const manifestData = chrome.runtime.getManifest();
     document.getElementById('versionNumber').textContent = `v${manifestData.version}`;
     
-    // Check if current tab is a GitHub profile page
+    // Auto-redirect to user's GitHub profile if not already there
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         if (tabs[0]) {
             let url = tabs[0].url;
@@ -49,11 +49,51 @@ window.addEventListener('load',()=>{
             let githubProfilePattern = /^https:\/\/github\.com\/[^\/]+\/?$/;
             
             if (!githubProfilePattern.test(url)) {
-                showError('⚠️ This extension only works on GitHub profile pages (e.g., github.com/username)');
+                // Not on a profile page, get username from GitHub cookie
+                chrome.cookies.get({
+                    url: 'https://github.com',
+                    name: 'dotcom_user'
+                }, function(cookie) {
+                    if (!cookie || !cookie.value) {
+                        // User not logged into GitHub
+                        showError('⚠️ Please log into GitHub first. Click here to login.');
+                        // Optional: Add click handler to open GitHub login
+                        document.getElementById('errorMessage').style.cursor = 'pointer';
+                        document.getElementById('errorMessage').onclick = function() {
+                            chrome.tabs.update(tabs[0].id, {
+                                url: 'https://github.com/login'
+                            });
+                            window.close();
+                        };
+                        return;
+                    }
+                    
+                    const username = cookie.value;
+                    console.log(`Found GitHub username: ${username}`);
+                    
+                    // Redirect current tab to user's profile
+                    chrome.tabs.update(tabs[0].id, {
+                        url: `https://github.com/${username}`
+                    });
+                    
+                    // Show message and close popup
+                    showSuccess(`Redirecting to github.com/${username}...`);
+                    
+                    setTimeout(() => {
+                        window.close();
+                    }, 800);
+                });
+                return;
             }
+            
+            // Already on GitHub profile page, initialize extension
+            initializeExtension();
         }
     });
-    
+});
+
+// Initialize extension features (only called when on correct page)
+function initializeExtension() {
     // colorChart and picking type selections
     // Try to get from content script first
     m2c({value:'getColorChartData', action:'runRequest', callBack: {callBackName: 'setColorSelectionOptions', echo:true}}, (success) => {
@@ -106,8 +146,9 @@ window.addEventListener('load',()=>{
             document.querySelector('#savedPatternSelection').value = '';
         }
     });
-    
-    function loadSavedPatterns() {
+}
+
+function loadSavedPatterns() {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             chrome.tabs.sendMessage(tabs[0].id, {
                 action: 'getSavedPatterns'
@@ -265,6 +306,24 @@ window.addEventListener('load',()=>{
         });
     });
 
+    //audio visualizer mode
+    document.querySelector('#visualizerButton').addEventListener('click',()=>{
+        console.log('VISUALIZER button clicked');
+        
+        // Show info message about audio capture
+        showSuccess('🎵 Select audio source...');
+        
+        m2c({value:'startAudioVisualizer',action:'runRequest', payload: {
+            colorScheme: document.querySelector('#colorChartSelection').value || 'amplitudeGradient'
+        }}, (success) => {
+            if (success) {
+                showSuccess('🎵 Audio visualizer activated! Playing audio on selected tab...');
+            } else {
+                showError('❌ Failed to start visualizer. Make sure you\'re on a GitHub profile page.');
+            }
+        });
+    });
+
     //animationDirectionModifier
     document.querySelector('#animationDirection2Left').addEventListener('click',()=>{
         m2c({value:'animationModifier', action:'runRequest', payload: {animationDirection:'Left'}}, () => {})
@@ -318,7 +377,6 @@ window.addEventListener('load',()=>{
     });
 
     //--<
-});
 
 function setColorSelectionOptions(data){
     //alert('Veri geldi mi:'+data);

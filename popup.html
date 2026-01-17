@@ -374,6 +374,19 @@
             box-shadow: var(--shadow-lg);
         }
 
+        .btn-visualizer {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            box-shadow: var(--shadow);
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .btn-visualizer:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -513,8 +526,12 @@
                 <span class="tooltiptext">Ctrl+R</span>
             </button>
             <button class="btn btn-disco tooltip" id="discoButton">
-                🧪
+                💿
                 <span class="tooltiptext">Disco Mode!</span>
+            </button>
+            <button class="btn btn-visualizer tooltip" id="visualizerButton">
+                🎵
+                <span class="tooltiptext">Audio Visualizer!</span>
             </button>
             <button class="btn btn-primary tooltip" id="sendWordsButton">
                 ▶ RUN

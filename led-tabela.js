@@ -586,6 +586,84 @@ function discoBall(){
     }
 }
 
+//=============================================================================
+// AUDIO VISUALIZER
+//=============================================================================
+let visualizerInstance = null;
+
+async function startAudioVisualizer(payload) {
+    console.log('startAudioVisualizer called with payload:', payload);
+    
+    try {
+        // Stop any running animations first
+        if (animationTimer) {
+            clearTimeout(animationTimer);
+            animationTimer = null;
+        }
+        
+        // Stop disco ball if running
+        if (typeof discoBallTimer !== 'undefined' && discoBallTimer) {
+            clearInterval(discoBallTimer);
+            discoBallTimer = null;
+        }
+        
+        // Stop existing visualizer if running
+        if (visualizerInstance && visualizerInstance.isRunning()) {
+            visualizerInstance.stop();
+            visualizerInstance = null;
+        }
+        
+        // Create new visualizer instance
+        if (typeof AudioVisualizer === 'undefined') {
+            throw new Error('AudioVisualizer class not loaded. Make sure audioVisualizer.js is included.');
+        }
+        
+        visualizerInstance = new AudioVisualizer();
+        
+        // Set color scheme if provided
+        if (payload && payload.colorScheme) {
+            visualizerInstance.setColorScheme(payload.colorScheme);
+        }
+        
+        // Initialize (this will request audio capture from user)
+        await visualizerInstance.init();
+        
+        // Start visualization
+        visualizerInstance.start();
+        
+        console.log('✅ Audio visualizer started successfully');
+        return { success: true };
+        
+    } catch (error) {
+        console.error('❌ Audio visualizer error:', error);
+        
+        // Show user-friendly error message
+        if (error.message.includes('denied')) {
+            alert('⚠️ Audio Capture Denied\n\nPlease click the 🎵 button again and:\n1. Click "Share" when the browser asks\n2. Select a tab that is playing audio\n3. Make sure "Share audio" checkbox is checked');
+        } else if (error.message.includes('No audio track')) {
+            alert('⚠️ No Audio Selected\n\nWhen selecting a tab, make sure:\n✓ The "Share audio" checkbox is checked\n✓ Select a tab that is actually playing audio\n\nTry again and check the "Share audio" option!');
+        } else if (error.message.includes('not supported') || error.message.includes('Not supported')) {
+            alert('⚠️ Browser Not Supported\n\nAudio capture requires:\n• Chrome 94 or later\n• Edge 94 or later\n\nPlease update your browser and try again.');
+        } else if (error.message.includes('not found')) {
+            alert('⚠️ No Audio Source\n\nPlease:\n1. Open a tab with audio (Spotify, YouTube, etc.)\n2. Start playing music\n3. Click the 🎵 button again\n4. Select that tab');
+        } else {
+            alert(`⚠️ Visualizer Error\n\n${error.message}\n\nPlease try again or check the console for details.`);
+        }
+        
+        return { success: false, error: error.message };
+    }
+}
+
+function stopAudioVisualizer() {
+    if (visualizerInstance) {
+        visualizerInstance.stop();
+        visualizerInstance = null;
+        console.log('Audio visualizer stopped');
+        return { success: true };
+    }
+    return { success: false, message: 'No visualizer running' };
+}
+
 function resetter(){
     rectNodeList = document.querySelectorAll('td.ContributionCalendar-day');
     rectNodeList.forEach((rectNode)=>{
