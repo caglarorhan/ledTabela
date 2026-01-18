@@ -2,7 +2,7 @@
   "name": "LED Tabela - GitHub Contribution Art",
   "short_name": "LED Tabela",
   "description": "Transform your GitHub contribution chart into an LED display with text animations, 30+ color schemes, and a disco ball mode!",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "manifest_version": 3,
   "action": {
     "default_popup": "popup.html",
