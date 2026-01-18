@@ -14,6 +14,47 @@ let baseColor='#ebedf0';
 let profileName=null;
 let totalWordLength=0;
 let wLS = window.localStorage;
+
+// Toast notification function
+function showToast(message, duration = 3000) {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #238636;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        max-width: 400px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    document.body.appendChild(toast);
+    
+    // Add slide-in animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
 if(!wLS.getItem('alphabet')){
     wLS.setItem('alphabet',JSON.stringify({}));
 }
@@ -434,10 +475,31 @@ function animationModifier(payload){
     if(payload.baseColor){baseColor=payload.baseColor}
 }
 
-function resetProcess(){
-    // Stop animation
+// Helper function to stop all animations and visualizers
+function stopAllAnimations() {
+    // Stop text animation
     animationStatus = false;
-    clearTimeout(animationTimer);
+    if (animationTimer) {
+        clearTimeout(animationTimer);
+        animationTimer = null;
+    }
+    
+    // Stop disco ball
+    if (typeof discoBallTimer !== 'undefined' && discoBallTimer) {
+        clearTimeout(discoBallTimer);
+        discoBallTimer = null;
+    }
+    
+    // Stop audio visualizer
+    if (visualizerInstance && visualizerInstance.isRunning()) {
+        visualizerInstance.stop();
+        visualizerInstance = null;
+    }
+}
+
+function resetProcess(){
+    // Stop all animations first
+    stopAllAnimations();
     
     // Reset variables
     leftPadding = 0;
@@ -455,9 +517,12 @@ function discoBall(){
     console.log('discoBall function called!');
     
     try {
-        // Reset first
-        resetProcess();
+        // Stop all other animations first
+        stopAllAnimations();
         animationStatus = true;
+        
+        // Clear the chart
+        resetter();
         
         // Get all cells
         rectNodeList = document.querySelectorAll('td.ContributionCalendar-day');
@@ -595,23 +660,8 @@ async function startAudioVisualizer(payload) {
     console.log('startAudioVisualizer called with payload:', payload);
     
     try {
-        // Stop any running animations first
-        if (animationTimer) {
-            clearTimeout(animationTimer);
-            animationTimer = null;
-        }
-        
-        // Stop disco ball if running
-        if (typeof discoBallTimer !== 'undefined' && discoBallTimer) {
-            clearInterval(discoBallTimer);
-            discoBallTimer = null;
-        }
-        
-        // Stop existing visualizer if running
-        if (visualizerInstance && visualizerInstance.isRunning()) {
-            visualizerInstance.stop();
-            visualizerInstance = null;
-        }
+        // Stop all other animations first
+        stopAllAnimations();
         
         // Create new visualizer instance
         if (typeof AudioVisualizer === 'undefined') {
@@ -623,6 +673,11 @@ async function startAudioVisualizer(payload) {
         // Set color scheme if provided
         if (payload && payload.colorScheme) {
             visualizerInstance.setColorScheme(payload.colorScheme);
+        }
+        
+        // Set bass boost if provided
+        if (payload && payload.bassBoost) {
+            visualizerInstance.setBassBoost(payload.bassBoost);
         }
         
         // Initialize (this will request audio capture from user)
@@ -659,6 +714,15 @@ function stopAudioVisualizer() {
         visualizerInstance.stop();
         visualizerInstance = null;
         console.log('Audio visualizer stopped');
+        return { success: true };
+    }
+    return { success: false, message: 'No visualizer running' };
+}
+
+function updateBassBoost(payload) {
+    if (visualizerInstance && visualizerInstance.isRunning()) {
+        visualizerInstance.setBassBoost(payload.bassBoost);
+        console.log(`Bass boost updated to ${payload.bassBoost}x`);
         return { success: true };
     }
     return { success: false, message: 'No visualizer running' };
@@ -728,13 +792,15 @@ function writer(payload){
     console.log('Writer called with payload:', payload);
     console.log(`Current xMax: ${xMax}, yMax: ${yMax}`);
     
-    // Reset chart and animations before starting new one
-    resetProcess();
+    // Stop all animations before starting new one
+    stopAllAnimations();
+    
+    // Reset chart
+    resetter();
     
     let letters = [];
     animationStatus=true;
     baseColor = payload.color.bgColor;
-    resetter();
     leftPadding=0;
     leftMargin=0;
     totalWordLength=0;
@@ -801,18 +867,45 @@ function writer(payload){
         console.log(`Animation starting with leftMargin=${leftMargin} (direction: ${animationDirection})`);
     }
 
-    if(totalWordLength>xMax-1 && !payload.animate.switch){
-        // Only check length if animation is OFF
-        console.log(`Word too long: totalWordLength=${totalWordLength}, xMax=${xMax}`);
-        console.error(`Word "${payload.word}" is too long (${totalWordLength} cells), max is ${xMax}. Enable animation or try shortening it!`);
-        totalWordLength=0;
-        animationStatus = false; // Stop any animation
-        resetter(); // Reset chart
-        return false;
+    if(totalWordLength > xMax && !payload.animate.switch){
+        // Only check length if animation is OFF - trim to fit
+        console.log(`Word too long: totalWordLength=${totalWordLength}, xMax=${xMax}, auto-trimming...`);
+        
+        // Calculate how many characters fit
+        let fittingLetters = [];
+        let currentLength = 0;
+        
+        for(let i = 0; i < letters.length; i++){
+            let letterData = wLSa(letters[i]);
+            let letterWidth = 1; // Default for space
+            
+            if(letterData && Array.isArray(letterData) && letterData.length > 0){
+                let orderedData = [...letterData].sort();
+                letterWidth = orderedData[orderedData.length-1][0] - orderedData[0][0] + 1;
+            }
+            
+            // Add inter-letter space if not first letter
+            let spaceNeeded = (i > 0 ? interLetterSpace : 0) + letterWidth;
+            
+            if(currentLength + spaceNeeded <= xMax){
+                fittingLetters.push(letters[i]);
+                currentLength += spaceNeeded;
+            } else {
+                break;
+            }
+        }
+        
+        // Update letters array to only include fitting letters
+        letters = fittingLetters;
+        let trimmedText = letters.join('');
+        totalWordLength = currentLength;
+        
+        showToast(`Text trimmed to fit! Showing: "${trimmedText}" (${totalWordLength}/${xMax} cells)`);
+        console.log(`Trimmed to: "${trimmedText}" (${fittingLetters.length} characters, ${totalWordLength} cells)`);
     }
     
     // For animation, allow any length - it will scroll
-    if(totalWordLength>xMax-1 && payload.animate.switch){
+    if(totalWordLength > xMax && payload.animate.switch){
         console.log(`Long message (${totalWordLength} cells) will scroll with animation`);
     }
     

@@ -99,6 +99,7 @@
 
         .container {
             padding: 20px;
+            padding-bottom: 60px;
             overflow-y: auto;
             flex: 1;
             margin-top: 25px;
@@ -321,8 +322,7 @@
         }
 
         .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            display: flex;
             gap: 10px;
             margin-top: 24px;
         }
@@ -511,19 +511,29 @@
         </div>
 
         <div class="form-group">
-            <div class="slider-group">
-                <div class="slider-header">
-                    <span class="slider-label">Animation Speed</span>
-                    <span class="slider-value"><span id="animationSpeedDisplay">300</span>ms</span>
+            <div style="display: flex; gap: 15px;">
+                <div class="slider-group" style="flex: 1;">
+                    <div class="slider-header">
+                        <span class="slider-label">Animation Speed</span>
+                        <span class="slider-value"><span id="animationSpeedDisplay">300</span>ms</span>
+                    </div>
+                    <input type="range" id="animationSpeed" min="10" max="1000" value="300" step="10">
                 </div>
-                <input type="range" id="animationSpeed" min="10" max="1000" value="300" step="10">
+
+                <div class="slider-group" style="flex: 1;">
+                    <div class="slider-header">
+                        <span class="slider-label">🎵 Bass Boost</span>
+                        <span class="slider-value"><span id="bassBoostDisplay">1.75</span>x</span>
+                    </div>
+                    <input type="range" id="bassBoost" min="1.0" max="3.0" value="1.75" step="0.05">
+                </div>
             </div>
         </div>
 
         <div class="button-group">
             <button class="btn btn-secondary tooltip" id="resetButton">
-                ↻ CLEAR CHART
-                <span class="tooltiptext">Ctrl+R</span>
+                ↻
+                <span class="tooltiptext">Clear Chart (Ctrl+R)</span>
             </button>
             <button class="btn btn-disco tooltip" id="discoButton">
                 💿
@@ -535,7 +545,7 @@
             </button>
             <button class="btn btn-primary tooltip" id="sendWordsButton">
                 ▶ RUN
-                <span class="tooltiptext">Ctrl+Enter</span>
+                <span class="tooltiptext">Run (Ctrl+Enter)</span>
             </button>
         </div>
     </div>

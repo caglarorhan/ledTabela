@@ -7,7 +7,8 @@ async function saveSettings() {
         animationSwitch: document.querySelector('#animationSwitch').checked,
         bgColor: document.querySelector('#bgColor').value,
         animationDirection: document.querySelector('#animationDirection2Right').checked ? 'Right' : 'Left',
-        animationSpeed: document.querySelector('#animationSpeed').value
+        animationSpeed: document.querySelector('#animationSpeed').value,
+        bassBoost: document.querySelector('#bassBoost').value
     };
     await chrome.storage.local.set({ ledTabelaSettings: settings });
 }
@@ -22,6 +23,10 @@ async function loadSettings() {
         if (settings.animationSpeed) {
             document.querySelector('#animationSpeed').value = settings.animationSpeed;
             document.querySelector('#animationSpeedDisplay').textContent = settings.animationSpeed;
+        }
+        if (settings.bassBoost) {
+            document.querySelector('#bassBoost').value = settings.bassBoost;
+            document.querySelector('#bassBoostDisplay').textContent = settings.bassBoost;
         }
         // Set dropdowns and direction after options are loaded
         setTimeout(() => {
@@ -314,7 +319,8 @@ function loadSavedPatterns() {
         showSuccess('🎵 Select audio source...');
         
         m2c({value:'startAudioVisualizer',action:'runRequest', payload: {
-            colorScheme: document.querySelector('#colorChartSelection').value || 'amplitudeGradient'
+            colorScheme: document.querySelector('#colorChartSelection').value || 'amplitudeGradient',
+            bassBoost: parseFloat(document.querySelector('#bassBoost').value)
         }}, (success) => {
             if (success) {
                 showSuccess('🎵 Audio visualizer activated! Playing audio on selected tab...');
@@ -342,6 +348,19 @@ function loadSavedPatterns() {
         document.getElementById('animationSpeedDisplay').textContent = e.target.value;
     });
 
+    // Bass Boost slider for audio visualizer
+    document.querySelector('#bassBoost').addEventListener('change', (e) => {
+        saveSettings(); // Save the new bass boost value
+        // Update the active visualizer if running
+        m2c({value:'updateBassBoost', action:'runRequest', payload: {bassBoost: parseFloat(e.target.value)}}, () => {});
+    });
+
+    document.querySelector('#bassBoost').addEventListener('input', (e) => {
+        document.querySelector('#bassBoostDisplay').textContent = e.target.value;
+        // Real-time update while dragging
+        m2c({value:'updateBassBoost', action:'runRequest', payload: {bassBoost: parseFloat(e.target.value)}}, () => {});
+    });
+
     // board bgColor - apply immediately on change
     document.querySelector('#bgColor').addEventListener('input',(e)=>{        m2c({value:'animationModifier', action:'runRequest', payload:{baseColor:e.target.value}}, () => {});
         m2c({value:'bgColorPainter', action:'runRequest', payload:{color:e.target.value}}, () => {});
@@ -367,7 +386,7 @@ function loadSavedPatterns() {
     });
     
     // Auto-save settings when changed
-    ['colorChartSelection', 'colorPickingTypeSelection', 'words', 'animationSwitch', 'bgColor', 'animationSpeed'].forEach(id => {
+    ['colorChartSelection', 'colorPickingTypeSelection', 'words', 'animationSwitch', 'bgColor', 'animationSpeed', 'bassBoost'].forEach(id => {
         const element = document.getElementById(id);
         if (element) {
             element.addEventListener('change', () => {
@@ -385,7 +404,12 @@ function setColorSelectionOptions(data){
     colorChartNameList.forEach((chartName)=>{
         let option = document.createElement('option');
         option.value = chartName;
-        option.textContent = chartName;
+        // Mark special audio visualizer modes with icon
+        if(chartName === 'amplitudeGradient' || chartName === 'frequencyRainbow') {
+            option.textContent = `🎵 ${chartName} (Dynamic)`;
+        } else {
+            option.textContent = chartName;
+        }
         document.querySelector('#colorChartSelection').append(option);
     });
     colorPickingTypeList.forEach((pickingType)=>{

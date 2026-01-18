@@ -11,6 +11,9 @@
  * - Maps to 54 columns × 7 rows (GitHub chart dimensions)
  */
 
+// Global audio stream storage - persists between visualizer instances
+let globalAudioStream = null;
+
 class AudioVisualizer {
     constructor() {
         this.audioContext = null;
@@ -51,30 +54,56 @@ class AudioVisualizer {
         console.log('🎵 Initializing Audio Visualizer...');
         
         try {
-            // Request audio capture from user
-            // Note: Chrome requires video:true even if we only want audio
-            this.audioStream = await navigator.mediaDevices.getDisplayMedia({
-                audio: {
-                    echoCancellation: false,
-                    noiseSuppression: false,
-                    autoGainControl: false
-                },
-                video: {
-                    width: 1,
-                    height: 1,
-                    frameRate: 1
+            // Check if we have a valid existing stream
+            if (globalAudioStream) {
+                const audioTracks = globalAudioStream.getAudioTracks();
+                if (audioTracks.length > 0 && audioTracks[0].readyState === 'live') {
+                    console.log('✅ Reusing existing audio stream:', audioTracks[0].label);
+                    this.audioStream = globalAudioStream;
+                } else {
+                    console.log('⚠️ Previous stream is no longer valid, requesting new one');
+                    globalAudioStream = null;
                 }
-            });
-            
-            console.log('✅ Media stream captured');
-            
-            // Check if audio track exists
-            const audioTracks = this.audioStream.getAudioTracks();
-            if (audioTracks.length === 0) {
-                throw new Error('No audio track in selected source. Make sure to check "Share audio" when selecting a tab.');
             }
             
-            console.log('✅ Audio track found:', audioTracks[0].label);
+            // Request new audio capture if we don't have a valid stream
+            if (!this.audioStream) {
+                console.log('📺 Requesting audio capture from user...');
+                this.audioStream = await navigator.mediaDevices.getDisplayMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    },
+                    video: {
+                        width: 1,
+                        height: 1,
+                        frameRate: 1
+                    }
+                });
+                
+                console.log('✅ Media stream captured');
+                
+                // Check if audio track exists
+                const audioTracks = this.audioStream.getAudioTracks();
+                if (audioTracks.length === 0) {
+                    throw new Error('No audio track in selected source. Make sure to check "Share audio" when selecting a tab.');
+                }
+                
+                console.log('✅ Audio track found:', audioTracks[0].label);
+                
+                // Store in global for reuse
+                globalAudioStream = this.audioStream;
+                
+                // Monitor stream ending (monitor all tracks)
+                this.audioStream.getTracks().forEach(track => {
+                    track.onended = () => {
+                        console.log(`${track.kind} track ended, clearing global stream`);
+                        globalAudioStream = null;
+                        this.stop();
+                    };
+                });
+            }
             
             // Setup Web Audio API
             this.audioContext = new AudioContext();
@@ -97,14 +126,6 @@ class AudioVisualizer {
             
             // Setup grid references
             this.setupGridReferences();
-            
-            // Monitor stream ending (monitor all tracks)
-            this.audioStream.getTracks().forEach(track => {
-                track.onended = () => {
-                    console.log(`${track.kind} track ended`);
-                    this.stop();
-                };
-            });
             
             return true;
             
@@ -136,9 +157,6 @@ class AudioVisualizer {
      */
     setupGridReferences() {
         const table = document.querySelector('table.ContributionCalendar-grid');
-        if (!table) {
-            throw new Error('GitHub contribution chart not found');
-        }
         
         console.log('Found contribution table');
         
@@ -502,6 +520,21 @@ class AudioVisualizer {
     }
     
     /**
+     * Set bass boost multiplier
+     */
+    setBassBoost(value) {
+        this.bassBoost = parseFloat(value);
+        console.log(`🔊 Bass boost set to: ${this.bassBoost}x`);
+    }
+    
+    /**
+     * Check if visualizer is currently running
+     */
+    isRunning() {
+        return this.isActive;
+    }
+    
+    /**
      * Stop the visualizer and clean up resources
      */
     stop() {
@@ -515,11 +548,9 @@ class AudioVisualizer {
             this.animationId = null;
         }
         
-        // Stop audio stream
-        if (this.audioStream) {
-            this.audioStream.getTracks().forEach(track => track.stop());
-            this.audioStream = null;
-        }
+        // DON'T stop audio stream - keep it alive for reuse
+        // Only disconnect from audio context
+        this.audioStream = null;
         
         // Close audio context
         if (this.audioContext && this.audioContext.state !== 'closed') {
@@ -530,7 +561,7 @@ class AudioVisualizer {
         // Reset grid to default
         this.resetGrid();
         
-        console.log('✅ Audio visualizer stopped and cleaned up');
+        console.log('✅ Audio visualizer stopped (stream kept alive for reuse)');
     }
     
     /**
